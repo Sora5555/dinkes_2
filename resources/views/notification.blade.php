@@ -1,0 +1,1 @@
+<p>Pelanggan atas nama {{$name}} telah melakukan pelaporan untuk periode tagihan {{$date}}</p>
