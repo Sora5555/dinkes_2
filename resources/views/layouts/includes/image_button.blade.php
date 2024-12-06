@@ -1,0 +1,1 @@
+{{-- <a href={{ $url }} target="_blank" class="btn btn-sm btn-primary m-2">Download Gambar</a> --}}
