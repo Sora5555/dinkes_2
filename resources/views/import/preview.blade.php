@@ -96,7 +96,7 @@
                     @csrf
                     <button type="submit" class="btn btn-success">Confirm Import</button>
                 </form>
-                    
+
                 </div>
             </div>
         </div> <!-- end col -->
@@ -243,7 +243,7 @@
                 <div class="col-md-10">
                     {!! Form::number('kode',null,['class'=>'form-control','id'=>"nama"]) !!}
                 </div>
-            </div>     
+            </div>
                 `
                 $('.modal-body').html(template)
                 $('#submitButton').attr('form', 'storeForm')
@@ -290,35 +290,35 @@
             <div class="mb-3 row">
                 <div class="col-md-10" id="bezettingField">
                 </div>
-            </div>     
+            </div>
             <div class="mb-3 row">
                 <label for="name" class="col-md-2 col-form-label">Posyandu Purnama</label>
             </div>
             <div class="mb-3 row">
                 <div class="col-md-10" id="purnamaField">
                 </div>
-            </div>     
+            </div>
             <div class="mb-3 row">
                 <label for="name" class="col-md-2 col-form-label">Posyandu Mandiri</label>
             </div>
             <div class="mb-3 row">
                 <div class="col-md-10" id="mandiriField">
                 </div>
-            </div>     
+            </div>
             <div class="mb-3 row">
                 <label for="name" class="col-md-2 col-form-label">Posyandu Aktif</label>
             </div>
             <div class="mb-3 row">
                 <div class="col-md-10" id="aktifField">
                 </div>
-            </div>     
+            </div>
             <div class="mb-3 row">
                 <label for="name" class="col-md-2 col-form-label">Posbindu</label>
             </div>
             <div class="mb-3 row">
                 <div class="col-md-10" id="posbinduField">
                 </div>
-            </div>     
+            </div>
                 `
                 $('.modal-body').html(template)
                 $('#nama_field').html(textUraian)
@@ -358,7 +358,7 @@
             <div class="mb-3 row">
                 <div class="col-md-10" id="nama_field">
                 </div>
-            </div>  
+            </div>
                 `
                 $('.modal-body').html(template)
                 $('#nama_field').html(textUraian)
@@ -392,7 +392,7 @@
             <div class="mb-3 row">
                 <div class="col-md-10" id="nama_field">
                 </div>
-            </div> 
+            </div>
                 `
                 $('.modal-body').html(template)
                 $('#nama_field').html(textNama)
@@ -426,7 +426,7 @@
             <div class="mb-3 row">
                 <div class="col-md-10" id="nama_field">
                 </div>
-            </div>  
+            </div>
                 `
                 $('.modal-body').html(template)
                 $('#nama_field').html(textNama)
@@ -459,7 +459,7 @@
             <div class="mb-3 row">
                 <div class="col-md-10" id="nama_field">
                 </div>
-            </div> 
+            </div>
                 `
                 $('.modal-body').html(template)
                 $('#nama_field').html(textNama)

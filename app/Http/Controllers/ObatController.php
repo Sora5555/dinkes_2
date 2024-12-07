@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Obat;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 
 class ObatController extends Controller
 {
@@ -18,9 +19,9 @@ class ObatController extends Controller
     public function index(Request $request)
     {
 
-        $obat = Obat::all();
-        $obat_tersedia = Obat::where('status', 1)->count();
-        $total_obat = Obat::count();
+        $obat = Obat::whereYear('created_at', Session::get('year'))->get();
+        $obat_tersedia = Obat::where('status', 1)->whereYear('created_at', Session::get('year'))->count();
+        $total_obat = Obat::whereYear('created_at', Session::get('year'))->count();
 
         // dd(UnitKerja::first()->jumlah_k1);
 

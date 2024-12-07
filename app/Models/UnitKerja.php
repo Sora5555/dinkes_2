@@ -21,61 +21,62 @@ class UnitKerja extends Model
         return $this->hasOne(ObatEsensial::class);
     }
     public function DokterSpesialis(){
-        return $this->hasOne(DokterSpesialis::class);
+        return $this->hasMany(DokterSpesialis::class);
     }
     public function Dokter(){
-        return $this->hasOne(Dokter::class);
+        return $this->hasMany(Dokter::class);
     }
     public function DokterGigi(){
-        return $this->hasOne(DokterGigi::class);
+        return $this->hasMany(DokterGigi::class);
     }
     public function DokterGigiSpesialis(){
-        return $this->hasOne(DokterGigiSpesialis::class);
+        return $this->hasMany(DokterGigiSpesialis::class);
     }
     public function Perawat(){
-        return $this->hasOne(Perawat::class);
+        return $this->hasMany(Perawat::class);
     }
     public function Bidan(){
-        return $this->hasOne(Bidan::class);
+        return $this->hasMany(Bidan::class);
     }
     public function TenagaKesehatanMasyarakat(){
-        return $this->hasOne(TenagaKesehatanMasyarakat::class);
+        return $this->hasMany(TenagaKesehatanMasyarakat::class);
     }
     public function TenagaKesehatanLingkungan(){
-        return $this->hasOne(TenagaKesehatanLingkungan::class);
+        return $this->hasMany(TenagaKesehatanLingkungan::class);
     }
     public function TenagaGizi(){
-        return $this->hasOne(TenagaGizi::class);
+        return $this->hasMany(TenagaGizi::class);
     }
     public function AhliLabMedik(){
-        return $this->hasOne(AhliLabMedik::class);
+        return $this->hasMany(AhliLabMedik::class);
     }
+
     public function TenagaTeknikBiomedik(){
-        return $this->hasOne(TenagaTeknikBiomedik::class);
+        return $this->hasMany(TenagaTeknikBiomedik::class);
     }
     public function TenagaTeknikFarmasi(){
-        return $this->hasOne(TenagaTeknisFarmasi::class);
+        return $this->hasMany(TenagaTeknisFarmasi::class);
     }
     public function TerapiFisik(){
-        return $this->hasOne(TerapiFisik::class);
+        return $this->hasMany(TerapiFisik::class);
     }
     public function KeteknisanMedik(){
-        return $this->hasOne(KeteknisanMedik::class);
+        return $this->hasMany(KeteknisanMedik::class);
     }
     public function Apoteker(){
-        return $this->hasOne(Apoteker::class);
+        return $this->hasMany(Apoteker::class);
     }
     public function PejabatStruktural(){
-        return $this->hasOne(PejabatStruktural::class);
+        return $this->hasMany(PejabatStruktural::class);
     }
     public function TenagaPendidik(){
-        return $this->hasOne(TenagaPendidik::class);
+        return $this->hasMany(TenagaPendidik::class);
     }
     public function Manajemen(){
-        return $this->hasOne(Manajemen::class);
+        return $this->hasMany(Manajemen::class);
     }
     public function Posyandu(){
-        return $this->hasOne(Posyandu::class);
+        return $this->hasMany(Posyandu::class);
     }
     public function desa(){
         return $this->hasMany(Desa::class);
@@ -1796,7 +1797,7 @@ class UnitKerja extends Model
     public function unitKerjaAmbil($namaFilter, $year, $namaAttribut){
         $total = 0;
         $desa = $this->Desa()->get();
-        
+
         foreach ($desa as $key => $value){
             $total += $value->$namaFilter($year)?$value->$namaFilter($year)->$namaAttribut:0;
         }

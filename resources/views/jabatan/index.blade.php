@@ -36,6 +36,18 @@
                         the construction function: <code>$().DataTable();</code>.
                     </p> --}}
                     <div class="table-responsive">
+                        <form action="{{url('import_jabatan')}}" method="post" enctype="multipart/form-data">
+                            @csrf
+                            <div class="row">
+                                <div class="col-10">
+                                    <input type="file" name="excel_file" class="form-control" id="">
+                                </div>
+                                <div class="col-2">
+                                    <button type="submit" class="btn btn-success">Import</button>
+                                </div>
+                            </div>
+                        </form>
+                        <br>
                         <table id="data" class="table table-bordered" style="width:100%;">
                             <thead class="text-center">
                             <tr>
@@ -43,6 +55,7 @@
                                 <th rowspan="2">Unit Kerja</th>
                                 <th colspan="3">Tenaga Keperawatan</th>
                                 <th rowspan="2">Tenaga Kebidanan</th>
+                                <th></th>
                                 @role("Pihak Wajib Pajak")
                                 <th rowspan="2">Action</th>
                                 @endrole
@@ -58,10 +71,11 @@
                                     <tr>
                                         <td>{{$item->id}}</td>
                                         <td>{{$item->nama}}</td>
-                                        <td>{{$item->Perawat->laki_laki}}</td>
-                                        <td>{{$item->Perawat->perempuan}}</td>
-                                        <td>{{$item->Perawat->laki_laki + $item->Perawat->perempuan}}</td>
-                                        <td>{{$item->Bidan->perempuan}}</td>
+                                        <td>{{$item->Perawat->sum("laki_laki")}}</td>
+                                        <td>{{$item->Perawat->sum("perempuan")}}</td>
+                                        <td>{{$item->Perawat->sum("laki_laki") + $item->Perawat->sum("perempuan")}}</td>
+                                        <td>{{$item->Bidan->sum("perempuan")}}</td>
+                                        <td><button class="btn btn-success detail" id="{{$item->id}}">Detail desa</button></td>
                                         @role("Pihak Wajib Pajak")
                                             <td><a class="btn btn-mod2 btn-warning" id="{{$item->id}}"><i class="mdi mdi-pen"></a></td>
                                         @endrole
@@ -149,6 +163,48 @@
         table.draw();
         });
 
+        $('#data').on('click', '.detail', function(){
+            let id = $(this).attr('id');
+            let $clickedRow = $(this).closest('tr'); // Get the clicked row elements
+            if ($clickedRow.next().hasClass('detail-row')) {
+                $clickedRow.nextAll('.detail-row').remove();
+            } else {
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+
+                $.ajax({
+                    'type' 	: 'GET',
+                    'url'	: `/jabatan/${id}`,
+                    'data'	: {'id': id},
+                    success	: function(res){
+                        console.log(res);
+
+
+                        $clickedRow.nextAll('.detail-row').remove();
+                        res.forEach(function(item) {
+                        let newRow = `
+                            <tr class="detail-row" style="background: #f9f9f9;">
+                                <td></td>
+                                <td>${item.nama}</td>
+                                <td>${ item.perawat != null ? item.perawat.laki_laki : 0}</td>
+                                <td>${ item.perawat != null ? item.perawat.perempuan : 0}</td>
+                                <td>${ item.perawat != null ? parseInt(item.perawat.laki_laki + item.perawat.perempuan) : 0}</td>
+                                <td>${item.bidan != null ? item.bidan.perempuan : 0}</td>
+                                <td></td>
+                            </tr>
+                            `;
+                        $clickedRow.after(newRow); // Insert the new row after the clicked row
+                        $clickedRow = $clickedRow.next(); // Move reference to the new row for subsequent inserts
+                    });
+                    }
+                });
+            }
+            console.log(id);
+        })
+
         $('#data').on('click', '.btn-mod2', function(){
             let induk_opd_id = $(this).attr('induk_opd_id');
             let induk_jabatan_id = $(this).attr('induk_jabatan_id');
@@ -181,14 +237,14 @@
             <div class="mb-3 row">
                 <div class="col-md-10" id="bezettingField">
                 </div>
-            </div>     
+            </div>
             <div class="mb-3 row">
                 <label for="name" class="col-md-2 col-form-label">Tenaga Kebidanan</label>
             </div>
             <div class="mb-3 row">
                 <div class="col-md-10" id="bezettingField2">
                 </div>
-            </div>     
+            </div>
                 `
                 $('.modal-body').html(template)
                 $('#nama_field').html(textPerawatLakiLaki)
@@ -272,7 +328,7 @@
                 <div class="col-md-10">
                     {!! Form::number('bezetting',null,['class'=>'form-control','id'=>"nama"]) !!}
                 </div>
-            </div>     
+            </div>
                 `
                 $('.modal-body').html(template)
                 $('#unit_organisasi_select').html(option)

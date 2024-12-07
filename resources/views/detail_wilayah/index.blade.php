@@ -36,6 +36,18 @@
                         the construction function: <code>$().DataTable();</code>.
                     </p> --}}
                     <div class="table-responsive">
+                        <form action="{{url('import_DetailWilayah')}}" method="post" enctype="multipart/form-data">
+                            @csrf
+                            <div class="row">
+                                <div class="col-10">
+                                    <input type="file" name="excel_file" class="form-control" id="">
+                                </div>
+                                <div class="col-2">
+                                    <button type="submit" class="btn btn-success">Import</button>
+                                </div>
+                            </div>
+                        </form>
+                        <br>
                         <table id="data" class="table table-bordered dt-responsive" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                             <thead class="text-center">
                             <tr>
@@ -60,21 +72,21 @@
                                 <tr style={{$key % 2 == 0?"background: gray":""}}>
                                     <td>{{$key + 1}}</td>
                                     <td>{{$item->nama}}</td>
-                                    
+
                                     <td><input type="number" name="luas_wilayah" id="{{$item->id}}" value="{{$item->luas_wilayah}}" class="form-control data-input" style="border: none"></td>
-                                    
+
                                     <td>{{$item->Desa()->count()}}</td>
-                                    
+
                                     <td><input type="number" name="kelurahan" id="{{$item->id}}" value="{{$item->kelurahan}}" class="form-control data-input" style="border: none"></td>
-                                    
+
                                     <td id="desaKelurahan{{$item->id}}">{{$item->Desa()->count() + $item->kelurahan}}</td>
-                                    
+
                                     <td><input type="number" name="jumlah_penduduk" id="{{$item->id}}" value="{{$item->jumlah_penduduk}}" class="form-control data-input" style="border: none"></td>
-                                    
+
                                     <td><input type="number" name="jumlah_rumah_tangga" id="{{$item->id}}" value="{{$item->jumlah_rumah_tangga}}" class="form-control data-input" style="border: none"></td>
-                                    
+
                                     <td id="rata_rata_rumah_tangga{{$item->id}}">{{$item->jumlah_rumah_tangga > 0 ? number_format(($item->jumlah_penduduk/($item->jumlah_rumah_tangga))*100, '2'):0}}%</td>
-                                    
+
                                     <td id="kepadatan_penduduk{{$item->id}}">{{$item->luas_wilayah > 0 ? number_format(($item->jumlah_penduduk/($item->luas_wilayah))*100, '2'):0}}%</td>
                                 </tr>
                                 @endforeach
@@ -177,7 +189,7 @@
         let desaKelurahan = $(this).parent().parent().find(`#desaKelurahan${id}`);
         let rata_rata_rumah_tangga = $(this).parent().parent().find(`#rata_rata_rumah_tangga${id}`);
         let kepadatan_penduduk = $(this).parent().parent().find(`#kepadatan_penduduk${id}`);
-        
+
 		$.ajaxSetup({
 			headers: {
 				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -194,7 +206,7 @@
                 kepadatan_penduduk.text(`${res.kepadatanPenduduk}%`);
 			}
 		});
-        
+
         console.log(name, value, id, params);
         })
     </script>

@@ -24,6 +24,80 @@ class Desa extends Model
     public function IbuHamil(){
         return $this->hasOne(IbuHamilDanBersalin::class);
     }
+
+    // Kategori OPD
+    public function AhliLabMedik(){
+        return $this->hasOne(AhliLabMedik::class);
+    }
+
+    public function TenagaTeknikBiomedik(){
+        return $this->hasOne(TenagaTeknikBiomedik::class);
+    }
+
+    public function TerapiFisik(){
+        return $this->hasOne(TerapiFisik::class);
+    }
+    public function KeteknisanMedik(){
+        return $this->hasOne(KeteknisanMedik::class);
+    }
+
+    //Unit Organisasi
+    public function TenagaKesehatanMasyarakat(){
+        return $this->hasOne(TenagaKesehatanMasyarakat::class);
+    }
+    public function TenagaKesehatanLingkungan(){
+        return $this->hasOne(TenagaKesehatanLingkungan::class);
+    }
+    public function TenagaGizi(){
+        return $this->hasOne(TenagaGizi::class);
+    }
+
+    //Jabatan
+    public function Perawat(){
+        return $this->hasOne(Perawat::class);
+    }
+    public function Bidan(){
+        return $this->hasOne(Bidan::class);
+    }
+
+    //Pemangku
+    public function DokterSpesialis(){
+        return $this->hasOne(DokterSpesialis::class);
+    }
+    public function Dokter(){
+        return $this->hasOne(Dokter::class);
+    }
+    public function DokterGigi(){
+        return $this->hasOne(DokterGigi::class);
+    }
+    public function DokterGigiSpesialis(){
+        return $this->hasOne(DokterGigiSpesialis::class);
+    }
+
+    //program
+    public function TenagaTeknikFarmasi(){
+        return $this->hasOne(TenagaTeknisFarmasi::class);
+    }
+
+    public function Apoteker(){
+        return $this->hasOne(Apoteker::class);
+    }
+
+    //Kegiatan
+    public function PejabatStruktural(){
+        return $this->hasOne(PejabatStruktural::class);
+    }
+    public function TenagaPendidik(){
+        return $this->hasOne(TenagaPendidik::class);
+    }
+    public function Manajemen(){
+        return $this->hasOne(Manajemen::class);
+    }
+
+    //sub_kegiatan
+    public function Posyandu(){
+        return $this->hasOne(Posyandu::class);
+    }
     public function filterDesa($tahun = null, $bulan = null){
 
         if($tahun == null){
@@ -369,7 +443,7 @@ class Desa extends Model
 
         return $var;
     }
-        
+
     public function filterStatusGizi($year = null){
         if($year == null){
             $var = StatusGizi::where('desa_id', $this->id)->whereYear('created_at', Carbon::now()->format('Y'))->first();

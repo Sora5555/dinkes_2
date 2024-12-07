@@ -16,4 +16,8 @@ class Bidan extends Model
     public function UnitKerja(){
         return $this->belongsTo(UnitKerja::class);
     }
+
+    public function Desa(){
+        return $this->belongsTo(Desa::class);
+    }
 }

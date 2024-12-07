@@ -89,7 +89,7 @@
                             <tbody>
                                 @role('Admin|superadmin')
                                 @foreach ($unit_kerja as $key => $item)
-                                
+
                                 <tr style={{$key % 2 == 0?"background: gray":""}}>
                                     <td>{{$key + 1}}</td>
                                     <td>{{$item->kecamatan}}</td>
@@ -97,17 +97,17 @@
                                     <td>{{$item->unitKerjaAmbil('filterImdAsi', Session::get('year'), 'jumlah_baru_lahir')["total"]}}</td>
                                     <td>{{$item->unitKerjaAmbil('filterImdAsi', Session::get('year'), 'mendapat_imd')["total"]}}</td>
                                     <td>{{$item->unitKerjaAmbil('filterImdAsi', Session::get('year'), 'jumlah_baru_lahir')["total"] > 0?
-                                        number_format($item->unitKerjaAmbil('filterImdAsi', Session::get('year'), 'mendapat_imd')["total"] 
+                                        number_format($item->unitKerjaAmbil('filterImdAsi', Session::get('year'), 'mendapat_imd')["total"]
                                         /$item->unitKerjaAmbil('filterImdAsi', Session::get('year'), 'jumlah_baru_lahir')["total"] * 100, 2
                                         ):0
-                                        }}</td>   
+                                        }}</td>
                                     <td>{{$item->unitKerjaAmbil('filterImdAsi', Session::get('year'), 'jumlah_enam_bulan')["total"]}}</td>
                                     <td>{{$item->unitKerjaAmbil('filterImdAsi', Session::get('year'), 'mendapat_asi')["total"]}}</td>
                                     <td>{{$item->unitKerjaAmbil('filterImdAsi', Session::get('year'), 'jumlah_enam_bulan')["total"] > 0?
-                                        number_format($item->unitKerjaAmbil('filterImdAsi', Session::get('year'), 'mendapat_asi')["total"] 
+                                        number_format($item->unitKerjaAmbil('filterImdAsi', Session::get('year'), 'mendapat_asi')["total"]
                                         /$item->unitKerjaAmbil('filterImdAsi', Session::get('year'), 'jumlah_enam_bulan')["total"] * 100, 2
                                         ):0
-                                        }}</td>   
+                                        }}</td>
                                           <td><input type="checkbox" name="lock" {{$item->general_lock_get(Session::get('year'), 'filterImdAsi') == 1 ? "checked":""}} class="data-lock" id="{{$item->id}}"></td>
                                           @if(isset($item->user) && $item->user->downloadFile('ImdAsi', Session::get('year')))
                                           <td><input type="checkbox" name="lock_upload" {{$item->user->downloadFile('ImdAsi', Session::get('year'))->status == 1 ? "checked":""}} class="data-lock-upload" id="{{$item->user->id}}"></td>
@@ -127,7 +127,7 @@
                                           @else
                                           <td>-</td>
                                           @endif
-                                          <td style="white-space: nowrap"><button class="btn btn-success detail" id="{{$item->id}}">Detail desa</button></td>         
+                                          <td style="white-space: nowrap"><button class="btn btn-success detail" id="{{$item->id}}">Detail desa</button></td>
                                 </tr>
                                 @endforeach
                                 @endrole
@@ -142,19 +142,19 @@
                                     <td>{{$key + 1}}</td>
                                     <td>{{$item->UnitKerja->kecamatan}}</td>
                                     <td class="unit_kerja">{{$item->nama}}</td>
-                                    
+
                                     <td><input type="number" {{$isDisabled}} name="jumlah_baru_lahir" id="{{$item->filterImdAsi(Session::get('year'))->id}}" value="{{$item->filterImdAsi(Session::get('year'))->jumlah_baru_lahir}}" class="form-control data-input" style="border: none; width: 100%"></td>
                                     <td><input type="number" {{$isDisabled}} name="mendapat_imd" id="{{$item->filterImdAsi(Session::get('year'))->id}}" value="{{$item->filterImdAsi(Session::get('year'))->mendapat_imd}}" class="form-control data-input" style="border: none; width: 100%"></td>
                                     <td id="imd{{$item->filterImdAsi(Session::get('year'))->id}}">{{$item->filterImdAsi(Session::get('year'))->jumlah_baru_lahir>0?
                                     number_format($item->filterImdAsi(Session::get('year'))->mendapat_imd
                                     /$item->filterImdAsi(Session::get('year'))->jumlah_baru_lahir * 100, 2):0}}</td>
-                                    
+
                                     <td><input type="number" {{$isDisabled}} name="jumlah_enam_bulan" id="{{$item->filterImdAsi(Session::get('year'))->id}}" value="{{$item->filterImdAsi(Session::get('year'))->jumlah_enam_bulan}}" class="form-control data-input" style="border: none; width: 100%"></td>
                                     <td><input type="number" {{$isDisabled}} name="mendapat_asi" id="{{$item->filterImdAsi(Session::get('year'))->id}}" value="{{$item->filterImdAsi(Session::get('year'))->mendapat_asi}}" class="form-control data-input" style="border: none; width: 100%"></td>
                                     <td id="asi{{$item->filterImdAsi(Session::get('year'))->id}}">{{$item->filterImdAsi(Session::get('year'))->jumlah_enam_bulan>0?
                                     number_format($item->filterImdAsi(Session::get('year'))->mendapat_asi
                                     /$item->filterImdAsi(Session::get('year'))->jumlah_enam_bulan * 100, 2):0}}</td>
-                                    
+
                                   </tr>
                                   @endif
                                 @endforeach
@@ -203,7 +203,7 @@
         let id = $(this).attr('id');
         let imd = $(this).parent().parent().find(`#imd${id}`);
         let asi = $(this).parent().parent().find(`#asi${id}`);
-        
+
 		$.ajaxSetup({
 			headers: {
 				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -267,7 +267,7 @@
                 $clickedRow = $clickedRow.next(); // Move reference to the new row for subsequent inserts
             });
 			}
-		}); 
+		});
             }
             console.log(id);
         })

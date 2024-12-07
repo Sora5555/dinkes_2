@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Desa;
 use App\Models\Dokter;
 use App\Models\DokterGigi;
 use App\Models\DokterGigiSpesialis;
@@ -21,6 +22,8 @@ use App\Models\UptDaerah;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 
 class PemangkuController extends Controller
@@ -43,9 +46,9 @@ class PemangkuController extends Controller
             $induk_opd_arr = IndukOpd::where('id', Auth::user()->induk_opd_id)->pluck('nama', 'id');
         }
         // $golongan = Golongan::pluck('nama', 'id');
-        $unit_kerja = UnitKerja::where('id', Auth::user()->unit_kerja_id)->get();
+        $unit_kerja = UnitKerja::where('id', Auth::user()->unit_kerja_id)->whereYear('created_at', Session::get('year'))->get();
         if(Auth::user()->roles->first()->name == "Admin"){
-            $unit_kerja = UnitKerja::all();
+            $unit_kerja = UnitKerja::whereYear('created_at', Session::get('year'))->get();
         }
         return view('pemangku.index', compact('title', 'route', 'induk_opd_arr', 'unit_kerja'));
     }
@@ -153,6 +156,140 @@ class PemangkuController extends Controller
         }
     }
 
+    public function import(Request $request)
+{
+    $file = $request->file('excel_file');
+    function check_internet_connection() {
+        return @fsockopen("www.google.com", 80); // Open a connection to google.com on port 80 (HTTP) - Change the domain if needed
+    }
+    // dd($request->all());
+
+    $data = Excel::toArray([], $file, null, \Maatwebsite\Excel\Excel::XLSX)[0];
+    DB::BeginTransaction();
+    foreach ($data as $key => $row) {
+        if($key == 0 || $key == 1){
+            continue;
+        } else {
+            // dd($row);
+            // <td>{{$item->DokterSpesialis->sum("laki_laki")}}</td>
+            // <td>{{$item->DokterSpesialis->sum("perempuan")}}</td>
+            // <td>{{$item->DokterSpesialis->sum("laki_laki") + $item->DokterSpesialis->sum("laki_laki")}}</td>
+
+            // <td>{{$item->Dokter->sum("laki_laki")}}</td>
+            // <td>{{$item->Dokter->sum("perempuan")}}</td>
+            // <td>{{$item->Dokter->sum("laki_laki") + $item->Dokter->sum("perempuan")}}</td>
+
+            // <td>{{$item->DokterGigi->sum("laki_laki")}}</td>
+            // <td>{{$item->DokterGigi->sum("perempuan")}}</td>
+            // <td>{{$item->DokterGigi->sum("laki_laki") + $item->DokterGigi->sum("perempuan")}}</td>
+
+            // <td>{{$item->DokterGigiSpesialis->sum("laki_laki")}}</td>
+            // <td>{{$item->DokterGigiSpesialis->sum("perempuan")}}</td>
+            // <td>{{$item->DokterGigiSpesialis->sum("laki_laki") + $item->DokterGigiSpesialis->sum("perempuan")}}</td>
+
+            $unit_kerja = UnitKerja::where('nama', 'LIKE', '%'. $row[1] .'%' )->first();
+
+            if($unit_kerja) {
+                $desa = Desa::where('nama', 'LIKE', '%'. $row[2] .'%')->first();
+                if($desa) {
+                    $DokterSpesialisExist = DokterSpesialis::where('unit_kerja_id', $unit_kerja->id)->where('desa_id', $desa->id)->whereYear('created_at', Session::get('year'))->first();
+                    if($DokterSpesialisExist) {
+                        $DokterSpesialisUpdate = DokterSpesialis::find($DokterSpesialisExist->id);
+                        $DokterSpesialisUpdate->laki_laki = $row[3];
+                        $DokterSpesialisUpdate->perempuan = $row[4];
+                        $DokterSpesialisUpdate->save();
+                    } else {
+                        $DokterSpesialisAdd = new DokterSpesialis;
+                        $DokterSpesialisAdd->unit_kerja_id = $unit_kerja->id;
+                        $DokterSpesialisAdd->desa_id = $desa->id;
+                        $DokterSpesialisAdd->laki_laki = $row[3];
+                        $DokterSpesialisAdd->perempuan = $row[4];
+                        $DokterSpesialisAdd->save();
+                    }
+
+
+                    $DokterExist = Dokter::where('unit_kerja_id', $unit_kerja->id)->where('desa_id', $desa->id)->whereYear('created_at', Session::get('year'))->first();
+                    if($DokterExist) {
+                        $DokterUpdate = Dokter::find($DokterExist->id);
+                        $DokterUpdate->laki_laki = $row[6];
+                        $DokterUpdate->perempuan = $row[7];
+                        $DokterUpdate->save();
+                    } else {
+                        $DokterAdd = new Dokter;
+                        $DokterAdd->unit_kerja_id = $unit_kerja->id;
+                        $DokterAdd->desa_id = $desa->id;
+                        $DokterAdd->laki_laki = $row[6];
+                        $DokterAdd->perempuan = $row[7];
+                        $DokterAdd->save();
+                    }
+
+                    $DokterGigiExist = DokterGigi::where('unit_kerja_id', $unit_kerja->id)->where('desa_id', $desa->id)->whereYear('created_at', Session::get('year'))->first();
+                    if($DokterGigiExist) {
+                        $DokterGigiUpdate = DokterGigi::find($DokterGigiExist->id);
+                        $DokterGigiUpdate->laki_laki = $row[9];
+                        $DokterGigiUpdate->perempuan = $row[10];
+                        $DokterGigiUpdate->save();
+                    } else {
+                        $DokterGigiAdd = new DokterGigi;
+                        $DokterGigiAdd->unit_kerja_id = $unit_kerja->id;
+                        $DokterGigiAdd->desa_id = $desa->id;
+                        $DokterGigiAdd->laki_laki = $row[9];
+                        $DokterGigiAdd->perempuan = $row[10];
+                        $DokterGigiAdd->save();
+                    }
+
+                    $DokterGigiSpesialisExist = DokterGigiSpesialis::where('unit_kerja_id', $unit_kerja->id)->where('desa_id', $desa->id)->whereYear('created_at', Session::get('year'))->first();
+                    if($DokterGigiSpesialisExist) {
+                        $DokterGigiSpesialisUpdate = DokterGigiSpesialis::find($DokterGigiSpesialisExist->id);
+                        $DokterGigiSpesialisUpdate->laki_laki = $row[12];
+                        $DokterGigiSpesialisUpdate->perempuan = $row[13];
+                        $DokterGigiSpesialisUpdate->save();
+                    } else {
+                        $DokterGigiSpesialisAdd = new DokterGigiSpesialis;
+                        $DokterGigiSpesialisAdd->unit_kerja_id = $unit_kerja->id;
+                        $DokterGigiSpesialisAdd->desa_id = $desa->id;
+                        $DokterGigiSpesialisAdd->laki_laki = $row[12];
+                        $DokterGigiSpesialisAdd->perempuan = $row[13];
+                        $DokterGigiSpesialisAdd->save();
+                    }
+                }
+
+            }
+
+            // $AhliLabMedikExist = AhliLabMedik
+
+
+            // $sasaran_backup = SasaranTahunIbuHamil::where('desa_id', $desa->id)->first();
+
+            // setlocale(LC_TIME, 'id_ID');
+            // $timestamp = Carbon::now()->format('F');
+            // if($sasaran_backup){
+            //     $array_backup = $sasaran_backup->toArray();
+            //     $array_backup_fix = collect($array_backup)->except(['created_at', 'updated_at', 'deleted_at'])->toArray();
+            //     // dd($array_backup_fix);
+            //     BackupSasaranTahunIbuHamil::create($array_backup_fix);
+            //     $sasaran_backup->update([
+            //         "sasaran_jumlah_ibu_hamil" => $row[2],
+            //         'sasaran_april' => 0,
+            //         'status_april' => 0,
+            //         'capaian_april' => 0,
+            //     ]);
+            //     // if($key == 2){
+            //     //     dd($monthNames[$timestamp], $sasaran_backup);
+            //     // }
+            // }
+            setlocale(LC_TIME, 0);
+        }
+        if (!check_internet_connection()) {
+            DB::rollBack(); // Rollback the transaction
+            return redirect()->back()->with('error', 'Koneksi Hilang saat proses import data');
+        }
+    }
+    DB::commit();
+
+    return redirect(route($this->routeName.'.index'))->with(['success'=>'Berhasil Menambah Sasaran']);
+}
+
     /**
      * Display the specified resource.
      *
@@ -161,7 +298,9 @@ class PemangkuController extends Controller
      */
     public function show($id)
     {
-        //
+        $desa = Desa::with('DokterSpesialis', 'Dokter', 'DokterGigi' , 'DokterGigiSpesialis')->where('unit_kerja_id',$id)->get();
+
+        return response()->json($desa);
     }
 
     /**
@@ -191,7 +330,7 @@ class PemangkuController extends Controller
     public function update(Request $request, $id)
     {
         //
-       
+
         $unitKerja = UnitKerja::findOrFail($id);
         DB::beginTransaction();
         try{
@@ -244,7 +383,7 @@ class PemangkuController extends Controller
             return redirect()->back()->with(['error'=>'Gagal Menghapus Pemangku : '.$e->getMessage()])->withErrors($request->all());
         }
     }
-    
+
     public function api($id){
 
        $unitKerja = UnitKerja::where('id', $id)->first();

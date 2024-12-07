@@ -30,6 +30,18 @@
                         </div>
                     </div>
                     <div class="table-responsive">
+                        <form action="{{url('import_ObatEsensial')}}" method="post" enctype="multipart/form-data">
+                            @csrf
+                            <div class="row">
+                                <div class="col-10">
+                                    <input type="file" name="excel_file" class="form-control" id="">
+                                </div>
+                                <div class="col-2">
+                                    <button type="submit" class="btn btn-success">Import</button>
+                                </div>
+                            </div>
+                        </form>
+                        <br>
                         <table id="data" class="table table-bordered dt-responsive" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                             <thead class="text-center">
                             <tr>
@@ -44,20 +56,20 @@
                                 <tr style={{$key % 2 == 0?"background: gray":""}}>
                                     <td>{{$key + 1}}</td>
                                     <td>{{$item->nama}}</td>
-                                    
+
                                     <td>
                                         <div class="d-flex flex-column gap-2">
                                             <div class="d-flex flex-column align-items-start">
                                                 <label for="diatas_80"> > 80%</label>
-                                                <input type="checkbox" {{$item->ObatEsensial->status == 1?"checked":""}} name="diatas_80" id="{{$item->id}}" class="data-input">
+                                                <input type="checkbox" {{$item->ObatEsensial ? $item->ObatEsensial->status == 1?"checked":"" : ""}} name="diatas_80" id="{{$item->id}}" class="data-input">
                                             </div>
                                             <div class="d-flex flex-column align-items-start">
                                                 <label for="dibawah_80"> < 80% </label>
-                                                <input type="checkbox" {{$item->ObatEsensial->status == 2?"checked":""}} name="dibawah_80" id="{{$item->id}}" class="data-input">
+                                                <input type="checkbox" {{  $item->ObatEsensial ?  $item->ObatEsensial->status == 2?"checked":"" : ""}} name="dibawah_80" id="{{$item->id}}" class="data-input">
                                             </div>
                                         </div>
                                     </td>
-                                    
+
                                 </tr>
                                 @endforeach
                                 <tr>
@@ -133,7 +145,7 @@
         $('#data').on('input', '.data-input', function(){
 		let name = $(this).attr('name');
         let id = $(this).attr('id');
-       
+
 		$.ajaxSetup({
 			headers: {
 				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -150,7 +162,7 @@
                }
 			}
 		});
-        
+
         })
     </script>
 @endpush

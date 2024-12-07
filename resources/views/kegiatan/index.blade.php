@@ -45,6 +45,18 @@
                         the construction function: <code>$().DataTable();</code>.
                     </p> --}}
                     <div class="table-responsive">
+                        <form action="{{url('import_kegiatan')}}" method="post" enctype="multipart/form-data">
+                            @csrf
+                            <div class="row">
+                                <div class="col-10">
+                                    <input type="file" name="excel_file" class="form-control" id="">
+                                </div>
+                                <div class="col-2">
+                                    <button type="submit" class="btn btn-success">Import</button>
+                                </div>
+                            </div>
+                        </form>
+                        <br>
                         <table id="data" class="table table-bordered" style="width:100%;">
                             <thead class="text-center">
                             <tr>
@@ -71,6 +83,7 @@
                                 <th>L</th>
                                 <th>P</th>
                                 <th>L + P</th>
+                                <th></th>
                             </tr>
                             </thead>
                             <tbody>
@@ -78,18 +91,22 @@
                                     <tr>
                                         <td>{{$item->id}}</td>
                                         <td>{{$item->nama}}</td>
-                                        <td>{{$item->PejabatStruktural->laki_laki}}</td>
-                                        <td>{{$item->PejabatStruktural->perempuan}}</td>
-                                        <td>{{$item->PejabatStruktural->laki_laki + $item->PejabatStruktural->perempuan}}</td>
-                                        <td>{{$item->TenagaPendidik->laki_laki}}</td>
-                                        <td>{{$item->TenagaPendidik->perempuan}}</td>
-                                        <td>{{$item->TenagaPendidik->laki_laki + $item->TenagaPendidik->perempuan}}</td>
-                                        <td>{{$item->Manajemen->laki_laki}}</td>
-                                        <td>{{$item->Manajemen->perempuan}}</td>
-                                        <td>{{$item->Manajemen->laki_laki + $item->Manajemen->perempuan}}</td>
-                                        <td>{{$item->Manajemen->laki_laki + $item->TenagaPendidik->laki_laki + $item->PejabatStruktural->laki_laki}}</td>
-                                        <td>{{$item->Manajemen->perempuan + $item->TenagaPendidik->perempuan + $item->PejabatStruktural->perempuan}}</td>
-                                        <td>{{$item->Manajemen->laki_laki + $item->Manajemen->perempuan + $item->TenagaPendidik->laki_laki + $item->TenagaPendidik->perempuan + $item->PejabatStruktural->laki_laki + $item->PejabatStruktural->perempuan}}</td>
+                                        <td>{{$item->PejabatStruktural->sum("laki_laki")}}</td>
+                                        <td>{{$item->PejabatStruktural->sum("perempuan")}}</td>
+                                        <td>{{$item->PejabatStruktural->sum("laki_laki") + $item->PejabatStruktural->sum("perempuan")}}</td>\
+
+                                        <td>{{$item->TenagaPendidik->sum("laki_laki")}}</td>
+                                        <td>{{$item->TenagaPendidik->sum("perempuan")}}</td>
+                                        <td>{{$item->TenagaPendidik->sum("laki_laki") + $item->TenagaPendidik->sum("perempuan")}}</td>
+
+                                        <td>{{$item->Manajemen->sum("laki_laki")}}</td>
+                                        <td>{{$item->Manajemen->sum("perempuan")}}</td>
+                                        <td>{{$item->Manajemen->sum("laki_laki") + $item->Manajemen->sum("perempuan")}}</td>
+
+                                        <td>{{$item->Manajemen->sum("laki_laki") + $item->TenagaPendidik->sum("laki_laki") + $item->PejabatStruktural->sum("laki_laki")}}</td>
+                                        <td>{{$item->Manajemen->sum('laki_laki') + $item->TenagaPendidik->sum('perempuan') + $item->PejabatStruktural->sum("perempuan")}}</td>
+                                        <td>{{$item->Manajemen->sum("laki_laki") + $item->Manajemen->sum('perempuan') + $item->TenagaPendidik->sum('laki_laki') + $item->TenagaPendidik->sum('perempuan') + $item->PejabatStruktural->sum("laki_laki") + $item->PejabatStruktural->sum('perempuan')}}</td>
+                                        <td><button class="btn btn-success detail" id="{{$item->id}}">Detail desa</button></td>
                                         @role("Pihak Wajib Pajak")
                                         <td><a class="btn btn-mod2 btn-warning" id="{{$item->id}}"><i class="mdi mdi-pen"></a></td>
                                         @endrole
@@ -190,6 +207,59 @@
                 })
         });
 
+
+        $('#data').on('click', '.detail', function(){
+            let id = $(this).attr('id');
+            let $clickedRow = $(this).closest('tr'); // Get the clicked row elements
+            if ($clickedRow.next().hasClass('detail-row')) {
+                $clickedRow.nextAll('.detail-row').remove();
+            } else {
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+
+                $.ajax({
+                    'type' 	: 'GET',
+                    'url'	: `/kegiatan/${id}`,
+                    'data'	: {'id': id},
+                    success	: function(res){
+                        console.log(res);
+
+                        $clickedRow.nextAll('.detail-row').remove();
+                        res.forEach(function(item) {
+                        let newRow = `
+                            <tr class="detail-row" style="background: #f9f9f9;">
+                                <td></td>
+                                <td>${item.nama}</td>
+                                <td>${ item.pejabat_struktural != null ? item.pejabat_struktural.laki_laki : 0}</td>
+                                <td>${ item.pejabat_struktural != null ? item.pejabat_struktural.perempuan : 0}</td>
+                                <td>${ item.pejabat_struktural != null ? parseInt(item.pejabat_struktural.laki_laki + item.pejabat_struktural.perempuan) : 0}</td>
+
+                                <td>${ item.tenaga_pendidik != null ? item.tenaga_pendidik.laki_laki : 0}</td>
+                                <td>${ item.tenaga_pendidik != null ? item.tenaga_pendidik.perempuan : 0}</td>
+                                <td>${ item.tenaga_pendidik != null ? parseInt(item.tenaga_pendidik.laki_laki + item.tenaga_pendidik.perempuan) : 0}</td>
+
+                                <td>${ item.manajemen != null ? item.manajemen.laki_laki : 0}</td>
+                                <td>${ item.manajemen != null ? item.manajemen.perempuan : 0}</td>
+                                <td>${ item.manajemen != null ? parseInt(item.manajemen.laki_laki + item.manajemen.perempuan) : 0}</td>
+
+                                <td>${ item.pejabat_struktural != null ? parseInt(item.pejabat_struktural.laki_laki + item.tenaga_pendidik.laki_laki + item.manajemen.laki_laki) : 0}</td>
+                                <td>${ item.pejabat_struktural != null ? parseInt(item.pejabat_struktural.perempuan + item.tenaga_pendidik.perempuan + item.manajemen.perempuan) : 0}</td>
+                                <td>${ item.pejabat_struktural != null ? parseInt(item.pejabat_struktural.laki_laki + item.tenaga_pendidik.laki_laki +   item.manajemen.laki_laki + item.pejabat_struktural.perempuan + item.tenaga_pendidik.perempuan + item.manajemen.perempuan) : 0}</td>
+                                <td></td>
+                            </tr>
+                            `;
+                        $clickedRow.after(newRow); // Insert the new row after the clicked row
+                        $clickedRow = $clickedRow.next(); // Move reference to the new row for subsequent inserts
+                    });
+                    }
+                });
+            }
+            console.log(id);
+        })
+
         $("#program_id").change(function(){
             table.draw()
         })
@@ -225,7 +295,7 @@
                 <div class="col-md-10">
                     {!! Form::number('kode',null,['class'=>'form-control','id'=>"nama"]) !!}
                 </div>
-            </div>     
+            </div>
                 `
                 $('.modal-body').html(template)
                 $('#submitButton').attr('form', 'storeForm')
@@ -272,35 +342,35 @@
             <div class="mb-3 row">
                 <div class="col-md-10" id="bezettingField">
                 </div>
-            </div>     
+            </div>
             <div class="mb-3 row">
                 <label for="name" class="col-md-2 col-form-label">Tenaga Pendidik (L)</label>
             </div>
             <div class="mb-3 row">
                 <div class="col-md-10" id="tenagaPendidikLakiLakiField">
                 </div>
-            </div>     
+            </div>
             <div class="mb-3 row">
                 <label for="name" class="col-md-2 col-form-label">Tenaga Pendidik (P)</label>
             </div>
             <div class="mb-3 row">
                 <div class="col-md-10" id="tenagaPendidikPerempuanField">
                 </div>
-            </div>     
+            </div>
             <div class="mb-3 row">
                 <label for="name" class="col-md-2 col-form-label">Pendukung Manajemen (L)</label>
             </div>
             <div class="mb-3 row">
                 <div class="col-md-10" id="pendukungManajemenLakiLakiField">
                 </div>
-            </div>     
+            </div>
             <div class="mb-3 row">
                 <label for="name" class="col-md-2 col-form-label">Pendukung Manajemen (P)</label>
             </div>
             <div class="mb-3 row">
                 <div class="col-md-10" id="pendukungManajemenPerempuanField">
                 </div>
-            </div>     
+            </div>
                 `
                 $('.modal-body').html(template)
                 $('#nama_field').html(textUraian)
@@ -340,7 +410,7 @@
             <div class="mb-3 row">
                 <div class="col-md-10" id="nama_field">
                 </div>
-            </div>  
+            </div>
                 `
                 $('.modal-body').html(template)
                 $('#nama_field').html(textUraian)
@@ -374,7 +444,7 @@
             <div class="mb-3 row">
                 <div class="col-md-10" id="nama_field">
                 </div>
-            </div> 
+            </div>
                 `
                 $('.modal-body').html(template)
                 $('#nama_field').html(textNama)
@@ -408,7 +478,7 @@
             <div class="mb-3 row">
                 <div class="col-md-10" id="nama_field">
                 </div>
-            </div>  
+            </div>
                 `
                 $('.modal-body').html(template)
                 $('#nama_field').html(textNama)
@@ -441,7 +511,7 @@
             <div class="mb-3 row">
                 <div class="col-md-10" id="nama_field">
                 </div>
-            </div> 
+            </div>
                 `
                 $('.modal-body').html(template)
                 $('#nama_field').html(textNama)

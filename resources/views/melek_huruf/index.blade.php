@@ -36,6 +36,18 @@
                         the construction function: <code>$().DataTable();</code>.
                     </p> --}}
                     <div class="table-responsive">
+                        <form action="{{url('import_MelekHuruf')}}" method="post" enctype="multipart/form-data">
+                            @csrf
+                            <div class="row">
+                                <div class="col-10">
+                                    <input type="file" name="excel_file" class="form-control" id="">
+                                </div>
+                                <div class="col-2">
+                                    <button type="submit" class="btn btn-success">Import</button>
+                                </div>
+                            </div>
+                        </form>
+                        <br>
                         <table id="data" class="table table-bordered dt-responsive" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                             <thead class="text-center">
                             <tr>
@@ -57,34 +69,34 @@
                                 <tr>
                                     <td>1</td>
                                     <td>PENDUDUK BERUMUR 15 TAHUN KE ATAS</td>
-                                    
+
                                     <td>{{$laki_laki}}</td>
-                                    
+
                                     <td>{{$perempuan}}</td>
-                                    
+
                                     <td>{{$laki_laki + $perempuan}}</td>
-                                    
+
                                     <td></td>
                                     <td></td>
                                     <td></td>
-                                    
+
                                 </tr>
                                 @role('Admin|superadmin')
                                 @foreach ($MelekHuruf as $key => $item)
                                 <tr style={{$key % 2 == 0?"background: gray":""}}>
                                     <td>{{$key + 2}}</td>
                                     <td>{{$item->variabel}}</td>
-                                    
+
                                     <td><input type="number" name="laki_laki" id="{{$item->id}}" value="{{$item->laki_laki}}" class="form-control data-input" style="border: none"></td>
-                                    
+
                                     <td><input type="number" name="perempuan" id="{{$item->id}}" value="{{$item->perempuan}}" class="form-control data-input" style="border: none"></td>
-                                    
+
                                     <td id="total_laki_laki_perempuan{{$item->id}}">{{$item->laki_laki + $item->perempuan}}</td>
-                                    
+
                                     <td id="persen_laki_laki{{$item->id}}">{{$laki_laki>0?number_format($item->laki_laki/$laki_laki * 100, 2):0}}</td>
                                     <td id="persen_perempuan{{$item->id}}">{{$perempuan>0?number_format($item->perempuan/$perempuan * 100, 2):0}}</td>
                                     <td id="persen_laki_laki_perempuan{{$item->id}}">{{$perempuan + $laki_laki>0?number_format(($item->perempuan + $item->laki_laki)/($perempuan + $laki_laki) * 100, 2):0}}</td>
-                                    
+
                                 </tr>
                                 @endforeach
                                 @endrole
@@ -175,7 +187,7 @@
         let persen_laki_laki = $(this).parent().parent().find(`#persen_laki_laki${id}`);
         let persen_perempuan = $(this).parent().parent().find(`#persen_perempuan${id}`);
         let persen_laki_laki_perempuan = $(this).parent().parent().find(`#persen_laki_laki_perempuan${id}`);
-        
+
 		$.ajaxSetup({
 			headers: {
 				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -193,7 +205,7 @@
                 persen_laki_laki_perempuan.text(`${res.persen_laki_laki_perempuan}`);
 			}
 		});
-        
+
         console.log(name, value, id, params);
         })
     </script>

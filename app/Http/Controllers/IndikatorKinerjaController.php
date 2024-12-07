@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AngkaKematian;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 
 class IndikatorKinerjaController extends Controller
 {
@@ -18,7 +19,7 @@ class IndikatorKinerjaController extends Controller
     public function index()
     {
         //
-        $AngkaKematian = AngkaKematian::all();
+        $AngkaKematian = AngkaKematian::whereYear('created_at', Session::get('year'))->get();
         $data=[
             'route'=>$this->routeName,
             'title'=>$this->title,

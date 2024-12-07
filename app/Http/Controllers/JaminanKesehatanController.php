@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\JaminanKesehatan;
 use App\Models\JumlahPenduduk;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 
 class JaminanKesehatanController extends Controller
 {
@@ -19,11 +20,11 @@ class JaminanKesehatanController extends Controller
     public function index(Request $request)
     {
 
-        $pbi = JaminanKesehatan::where('golongan', 'pbi')->get();
-        $nonPbi = JaminanKesehatan::where('golongan', 'non_pbi')->get();
-        $jumlahNonPbi = JaminanKesehatan::where('golongan', 'non_pbi')->sum('jumlah');
-        $jumlahPbi = JaminanKesehatan::where('golongan', 'pbi')->sum('jumlah');
-        $jumlahPenduduk = JumlahPenduduk::all();
+        $pbi = JaminanKesehatan::where('golongan', 'pbi')->whereYear('created_at', Session::get('year'))->get();
+        $nonPbi = JaminanKesehatan::where('golongan', 'non_pbi')->whereYear('created_at', Session::get('year'))->get();
+        $jumlahNonPbi = JaminanKesehatan::where('golongan', 'non_pbi')->whereYear('created_at', Session::get('year'))->sum('jumlah');
+        $jumlahPbi = JaminanKesehatan::where('golongan', 'pbi')->whereYear('created_at', Session::get('year'))->sum('jumlah');
+        $jumlahPenduduk = JumlahPenduduk::whereYear('created_at', Session::get('year'))->get();
         $totalPenduduk = $jumlahPenduduk->sum('laki_laki') + $jumlahPenduduk->sum('perempuan');
         // dd(UnitKerja::first()->jumlah_k1);
 
@@ -71,7 +72,7 @@ class JaminanKesehatanController extends Controller
             'status' => 'success',
             'persen' => $persen,
         ]);
-        
+
     }
 
     /**

@@ -19,10 +19,10 @@ class ResumeController extends Controller
     protected $title = 'Resume';
     public function index(Request $request)
     {
-       
+
     $resume = Resume::all();
      // Fetch all unitKerja records
-    
+
     $unit_kerja = Auth::user()->unit_kerja;
     $data=[
         'route'=>$this->routeName,

@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container-fluid">
-    
+
     <!-- start page title -->
     <div class="row">
         <div class="col-12">
@@ -26,7 +26,7 @@
             <div class="card">
                 <div class="card-body">
                     <div class="row mb-2">
-                       
+
                     </div>
                     {{-- <h4 class="card-title">Pengguna</h4> --}}
                     {{-- <p class="card-title-desc">DataTables has most features enabled by
@@ -34,6 +34,18 @@
                         the construction function: <code>$().DataTable();</code>.
                     </p> --}}
                     <div class="table-responsive">
+                        <form action="{{url('import_pemangku')}}" method="post" enctype="multipart/form-data">
+                            @csrf
+                            <div class="row">
+                                <div class="col-10">
+                                    <input type="file" name="excel_file" class="form-control" id="">
+                                </div>
+                                <div class="col-2">
+                                    <button type="submit" class="btn btn-success">Import</button>
+                                </div>
+                            </div>
+                        </form>
+                        <br>
                         <table id="data" class="table table-bordered" style="width:100%;">
                             <thead class="text-center">
                             <tr>
@@ -68,6 +80,7 @@
                                 <th>L</th>
                                 <th>P</th>
                                 <th>L + P</th>
+                                <th></th>
                             </tr>
                             </thead>
                             <tbody>
@@ -75,24 +88,30 @@
                                     <tr>
                                         <td>{{$item->id}}</td>
                                         <td>{{$item->nama}}</td>
-                                        <td>{{$item->DokterSpesialis->laki_laki}}</td>
-                                        <td>{{$item->DokterSpesialis->perempuan}}</td>
-                                        <td>{{$item->DokterSpesialis->laki_laki + $item->DokterSpesialis->perempuan}}</td>
-                                        <td>{{$item->Dokter->laki_laki}}</td>
-                                        <td>{{$item->Dokter->perempuan}}</td>
-                                        <td>{{$item->Dokter->laki_laki + $item->Dokter->perempuan}}</td>
-                                        <td>{{$item->Dokter->laki_laki + $item->DokterSpesialis->laki_laki}}</td>
-                                        <td>{{$item->Dokter->perempuan + $item->DokterSpesialis->perempuan}}</td>
-                                        <td>{{$item->Dokter->laki_laki + $item->Dokter->perempuan + $item->DokterSpesialis->laki_laki + $item->DokterSpesialis->perempuan}}</td>
-                                        <td>{{$item->DokterGigi->laki_laki}}</td>
-                                        <td>{{$item->DokterGigi->perempuan}}</td>
-                                        <td>{{$item->DokterGigi->laki_laki + $item->DokterGigi->perempuan}}</td>
-                                        <td>{{$item->DokterGigiSpesialis->laki_laki}}</td>
-                                        <td>{{$item->DokterGigiSpesialis->perempuan}}</td>
-                                        <td>{{$item->DokterGigiSpesialis->laki_laki + $item->DokterGigiSpesialis->perempuan}}</td>
-                                        <td>{{$item->DokterGigiSpesialis->laki_laki + $item->DokterGigi->laki_laki}}</td>
-                                        <td>{{$item->DokterGigiSpesialis->perempuan + $item->DokterGigi->perempuan}}</td>
-                                        <td>{{$item->DokterGigiSpesialis->laki_laki + $item->DokterGigiSpesialis->perempuan + $item->DokterGigi->laki_laki + $item->DokterGigi->perempuan}}</td>
+                                        <td>{{$item->DokterSpesialis->sum("laki_laki")}}</td>
+                                        <td>{{$item->DokterSpesialis->sum("perempuan")}}</td>
+                                        <td>{{$item->DokterSpesialis->sum("laki_laki") + $item->DokterSpesialis->sum("laki_laki")}}</td>
+
+                                        <td>{{$item->Dokter->sum("laki_laki")}}</td>
+                                        <td>{{$item->Dokter->sum("perempuan")}}</td>
+                                        <td>{{$item->Dokter->sum("laki_laki") + $item->Dokter->sum("perempuan")}}</td>
+
+                                        <td>{{$item->Dokter->sum("laki_laki") + $item->DokterSpesialis->sum("laki_laki")}}</td>
+                                        <td>{{$item->Dokter->sum("perempuan") + $item->DokterSpesialis->sum("perempuan")}}</td>
+                                        <td>{{$item->Dokter->sum("laki_laki") + $item->Dokter->sum("perempuan") + $item->DokterSpesialis->sum("laki_laki") + $item->DokterSpesialis->sum("perempuan")}}</td>
+
+                                        <td>{{$item->DokterGigi->sum("laki_laki")}}</td>
+                                        <td>{{$item->DokterGigi->sum("perempuan")}}</td>
+                                        <td>{{$item->DokterGigi->sum("laki_laki") + $item->DokterGigi->sum("perempuan")}}</td>
+
+                                        <td>{{$item->DokterGigiSpesialis->sum("laki_laki")}}</td>
+                                        <td>{{$item->DokterGigiSpesialis->sum("perempuan")}}</td>
+                                        <td>{{$item->DokterGigiSpesialis->sum("laki_laki") + $item->DokterGigiSpesialis->sum("perempuan")}}</td>
+
+                                        <td>{{$item->DokterGigiSpesialis->sum("laki_laki") + $item->DokterGigi->sum("laki_laki")}}</td>
+                                        <td>{{$item->DokterGigiSpesialis->sum("perempuan") + $item->DokterGigi->sum("perempuan")}}</td>
+                                        <td>{{$item->DokterGigiSpesialis->sum("laki_laki") + $item->DokterGigiSpesialis->sum("perempuan") + $item->DokterGigi->sum("laki_laki") + $item->DokterGigi->sum("perempuan")}}</td>
+                                        <td><button class="btn btn-success detail" id="{{$item->id}}">Detail desa</button></td>
                                         @role("Pihak Wajib Pajak")
                                             <td><a class="btn btn-mod2 btn-warning" id="{{$item->id}}"><i class="mdi mdi-pen"></a></td>
                                         @endrole
@@ -116,7 +135,7 @@
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-    
+
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -173,6 +192,66 @@
             ],
         });
 
+        $('#data').on('click', '.detail', function(){
+            let id = $(this).attr('id');
+            let $clickedRow = $(this).closest('tr'); // Get the clicked row elements
+            if ($clickedRow.next().hasClass('detail-row')) {
+                $clickedRow.nextAll('.detail-row').remove();
+            } else {
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+
+                $.ajax({
+                    'type' 	: 'GET',
+                    'url'	: `/pemangku/${id}`,
+                    'data'	: {'id': id},
+                    success	: function(res){
+                        console.log(res);
+
+                        $clickedRow.nextAll('.detail-row').remove();
+                        res.forEach(function(item) {
+                        let newRow = `
+                            <tr class="detail-row" style="background: #f9f9f9;">
+                                <td></td>
+                                <td>${item.nama}</td>
+                                <td>${ item.dokter_spesialis != null ? item.dokter_spesialis.laki_laki : 0}</td>
+                                <td>${ item.dokter_spesialis != null ? item.dokter_spesialis.perempuan : 0}</td>
+                                <td>${ item.dokter_spesialis != null ? parseInt(item.dokter_spesialis.laki_laki + item.dokter_spesialis.perempuan) : 0}</td>
+
+                                <td>${ item.dokter != null ? item.dokter.laki_laki : 0}</td>
+                                <td>${ item.dokter != null ? item.dokter.perempuan : 0}</td>
+                                <td>${ item.dokter != null ? parseInt(item.dokter.laki_laki + item.dokter.perempuan) : 0}</td>
+
+                                <td>${ item.dokter != null ? parseInt(item.dokter.laki_laki + item.dokter_spesialis.laki_laki) : 0}</td>
+                                <td>${ item.dokter != null ? parseInt(item.dokter.perempuan + item.dokter_spesialis.perempuan) : 0}</td>
+                                <td>${ item.dokter != null ? parseInt(item.dokter.laki_laki + item.dokter_spesialis.laki_laki + item.dokter_spesialis.perempuan + item.dokter.perempuan) : 0}</td>
+
+                                <td>${ item.dokter_gigi != null ? item.dokter_gigi.laki_laki : 0}</td>
+                                <td>${ item.dokter_gigi != null ? item.dokter_gigi.perempuan : 0}</td>
+                                <td>${ item.dokter_gigi != null ? parseInt(item.dokter_gigi.laki_laki + item.dokter_gigi.perempuan) : 0}</td>
+
+                                <td>${ item.dokter_gigi_spesialis != null ? item.dokter_gigi_spesialis.laki_laki : 0}</td>
+                                <td>${ item.dokter_gigi_spesialis != null ? item.dokter_gigi_spesialis.perempuan : 0}</td>
+                                <td>${ item.dokter_gigi_spesialis != null ? parseInt(item.dokter_gigi_spesialis.laki_laki + item.dokter_gigi_spesialis.perempuan) : 0}</td>
+
+                                <td>${ item.dokter_gigi != null ? parseInt(item.dokter_gigi.laki_laki + item.dokter_gigi_spesialis.laki_laki) : 0}</td>
+                                <td>${ item.dokter_gigi != null ? parseInt(item.dokter_gigi.perempuan + item.dokter_gigi_spesialis.perempuan) : 0}</td>
+                                <td>${ item.dokter_gigi != null ? parseInt(item.dokter_gigi.laki_laki + item.dokter_gigi_spesialis.laki_laki + item.dokter_gigi_spesialis.perempuan + item.dokter_gigi.perempuan) : 0}</td>
+                                <td></td>
+                            </tr>
+                            `;
+                        $clickedRow.after(newRow); // Insert the new row after the clicked row
+                        $clickedRow = $clickedRow.next(); // Move reference to the new row for subsequent inserts
+                    });
+                    }
+                });
+            }
+            console.log(id);
+        })
+
         $('#induk_opd').change(function(){
         table.draw();
         });
@@ -209,7 +288,7 @@
                 <div class="col-md-10">
                     {!! Form::number('nip',null,['class'=>'form-control','id'=>"nama"]) !!}
                 </div>
-            </div>  
+            </div>
                 `
                 $('.modal-body').html(template)
                 $('.modal').modal('toggle');
@@ -256,50 +335,50 @@
             <div class="mb-3 row">
                 <div class="col-md-10" id="nip-field">
                 </div>
-            </div>  
+            </div>
             <div class="mb-3 row">
                 <label for="name" class="col-md-2 col-form-label">Dokter (L)</label>
             </div>
             <div class="mb-3 row">
                 <div class="col-md-10" id="dokter-laki_laki-field">
                 </div>
-            </div>  
+            </div>
             <div class="mb-3 row">
                 <label for="name" class="col-md-2 col-form-label">Dokter (P)</label>
             </div>
             <div class="mb-3 row">
                 <div class="col-md-10" id="dokter-perempuan-field">
                 </div>
-            </div>  
+            </div>
             <div class="mb-3 row">
                 <label for="name" class="col-md-2 col-form-label">Dokter Gigi (L)</label>
             </div>
             <div class="mb-3 row">
                 <div class="col-md-10" id="dokter-gigi-laki_laki-field">
                 </div>
-            </div>  
+            </div>
             <div class="mb-3 row">
                 <label for="name" class="col-md-2 col-form-label">Dokter Gigi (P)</label>
             </div>
             <div class="mb-3 row">
                 <div class="col-md-10" id="dokter-gigi-perempuan-field">
                 </div>
-            </div>  
+            </div>
             <div class="mb-3 row">
                 <label for="name" class="col-md-2 col-form-label">Dokter Gigi Spesialis (L)</label>
             </div>
             <div class="mb-3 row">
                 <div class="col-md-10" id="dokter-gigi-spesialis-laki_laki-field">
                 </div>
-            </div>  
+            </div>
             <div class="mb-3 row">
                 <label for="name" class="col-md-2 col-form-label">Dokter Gigi Spesialis (P)</label>
             </div>
             <div class="mb-3 row">
                 <div class="col-md-10" id="dokter-gigi-spesialis-perempuan-field">
                 </div>
-            </div>  
-            </div>   
+            </div>
+            </div>
                 `
                 console.log(id);
                 $('.modal-body').html(template)

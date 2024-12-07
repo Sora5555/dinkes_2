@@ -48,6 +48,18 @@
                         the construction function: <code>$().DataTable();</code>.
                     </p> --}}
                     <table id="data" class="table table-bordered dt-responsive" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                        <form action="{{url('import_sub_kegiatan')}}" method="post" enctype="multipart/form-data">
+                            @csrf
+                            <div class="row">
+                                <div class="col-10">
+                                    <input type="file" name="excel_file" class="form-control" id="">
+                                </div>
+                                <div class="col-2">
+                                    <button type="submit" class="btn btn-success">Import</button>
+                                </div>
+                            </div>
+                        </form>
+                        <br>
                         <thead class="text-center">
                         <tr>
                             <th rowspan="3">Puskesmas</th>
@@ -76,24 +88,26 @@
                             <th>%</th>
                             <th>Jumlah</th>
                             <th>%</th>
+                            <th></th>
                         </tr>
                         </thead>
                         <tbody>
                             @foreach ($unit_kerja as $item)
                                 <tr>
-                                    <td>{{$item->nama}}</td>  
-                                    <td>{{$item->Posyandu->pratama}}</td>  
-                                    <td>{{$item->Posyandu->pratama > 0?number_format(($item->Posyandu->pratama/($item->Posyandu->pratama + $item->Posyandu->madya + $item->Posyandu->purnama + $item->Posyandu->mandiri))*100, '2'):0}}%</td>  
-                                    <td>{{$item->Posyandu->madya}}</td>  
-                                    <td>{{$item->Posyandu->madya > 0?number_format(($item->Posyandu->madya/($item->Posyandu->pratama + $item->Posyandu->madya + $item->Posyandu->purnama + $item->Posyandu->mandiri))*100, '2'):0}}%</td>  
-                                    <td>{{$item->Posyandu->purnama}}</td>  
-                                    <td>{{$item->Posyandu->purnama > 0?number_format(($item->Posyandu->purnama/($item->Posyandu->pratama + $item->Posyandu->madya + $item->Posyandu->purnama + $item->Posyandu->mandiri))*100, '2'):0}}%</td>  
-                                    <td>{{$item->Posyandu->mandiri}}</td>  
-                                    <td>{{$item->Posyandu->mandiri > 0?number_format(($item->Posyandu->mandiri/($item->Posyandu->pratama + $item->Posyandu->madya + $item->Posyandu->purnama + $item->Posyandu->mandiri))*100, '2'):0}}%</td>
-                                    <td>{{$item->Posyandu->pratama + $item->Posyandu->madya + $item->Posyandu->purnama + $item->Posyandu->mandiri}}</td>
-                                    <td>{{$item->Posyandu->aktif}}</td>  
-                                    <td>{{$item->Posyandu->aktif > 0?number_format(($item->Posyandu->aktif/($item->Posyandu->pratama + $item->Posyandu->madya + $item->Posyandu->purnama + $item->Posyandu->mandiri))*100, '2'): 0}}%</td>
-                                    <td>{{$item->Posyandu->posbindu}}</td>
+                                    <td>{{$item->nama}}</td>
+                                    <td>{{$item->Posyandu->sum('pratama')}}</td>
+                                    <td>{{$item->Posyandu->sum('pratama') > 0?number_format(($item->Posyandu->sum('pratama')/($item->Posyandu->sum("pratama") + $item->Posyandu->sum('madya') + $item->Posyandu->sum('purnama') + $item->Posyandu->sum('mandiri')))*100, '2'):0}}%</td>
+                                    <td>{{$item->Posyandu->sum('madya')}}</td>
+                                    <td>{{$item->Posyandu->sum('madya') > 0?number_format(($item->Posyandu->sum('madya')/($item->Posyandu->sum("pratama") + $item->Posyandu->sum('madya') + $item->Posyandu->sum('purnama') + $item->Posyandu->sum('mandiri')))*100, '2'):0}}%</td>
+                                    <td>{{$item->Posyandu->sum('purnama')}}</td>
+                                    <td>{{$item->Posyandu->sum('purnama') > 0?number_format(($item->Posyandu->sum('purnama')/($item->Posyandu->sum("pratama") + $item->Posyandu->sum('madya') + $item->Posyandu->sum('purnama') + $item->Posyandu->sum('mandiri')))*100, '2'):0}}%</td>
+                                    <td>{{$item->Posyandu->sum('mandiri')}}</td>
+                                    <td>{{$item->Posyandu->sum('mandiri') > 0?number_format(($item->Posyandu->sum('mandiri')/($item->Posyandu->sum("pratama") + $item->Posyandu->sum('madya') + $item->Posyandu->sum('purnama') + $item->Posyandu->sum('mandiri')))*100, '2'):0}}%</td>
+                                    <td>{{$item->Posyandu->sum('pratama') + $item->Posyandu->sum('madya') + $item->Posyandu->sum('purnama') + $item->Posyandu->sum('mandiri')}}</td>
+                                    <td>{{$item->Posyandu->sum('aktif')}}</td>
+                                    <td>{{$item->Posyandu->sum('aktif') > 0?number_format(($item->Posyandu->sum('aktif')/($item->Posyandu->sum("pratama") + $item->Posyandu->sum('madya') + $item->Posyandu->sum('purnama') + $item->Posyandu->sum('mandiri')))*100, '2'): 0}}%</td>
+                                    <td>{{$item->Posyandu->sum('posbindu')}}</td>
+                                    <td><button class="btn btn-success detail" id="{{$item->id}}">Detail desa</button></td>
                                     @role("Pihak Wajib Pajak")
                                     <td><a class="btn btn-mod2 btn-warning" id="{{$item->id}}"><i class="mdi mdi-pen"></a></td>
                                     @endrole
@@ -172,6 +186,74 @@
                 {data: 'indikator', name:'indikator'}
             ],
         });
+
+        $('#data').on('click', '.detail', function(){
+            let id = $(this).attr('id');
+            let $clickedRow = $(this).closest('tr'); // Get the clicked row elements
+            if ($clickedRow.next().hasClass('detail-row')) {
+                $clickedRow.nextAll('.detail-row').remove();
+            } else {
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+
+                $.ajax({
+                    'type' 	: 'GET',
+                    'url'	: `/sub_kegiatan/${id}`,
+
+                    'data'	: {'id': id},
+                    success	: function(res){
+                        console.log(res);
+
+                        $clickedRow.nextAll('.detail-row').remove();
+                        res.forEach(function(item) {
+                        let pratamaPersent = 0;
+                        let madyaPersent = 0;
+                        let purnamaPersent = 0;
+                        let mandiriPersent = 0;
+                        let aktifPersent = 0;
+
+                        let PosyanduTotal = 0;
+                        if(item.posyandu != null) {
+                            let PosyanduTotal = parseInt(item.posyandu.pratama + item.posyandu.madya + item.posyandu.purnama + item.posyandu.mandiri);
+
+                            pratamaPersent = parseFloat((item.posyandu.pratama / ( PosyanduTotal)) * 100);
+
+                            madyaPersent = parseFloat((item.posyandu.madya / ( PosyanduTotal)) * 100);
+                            purnamaPersent = parseFloat((item.posyandu.purnama / ( PosyanduTotal)) * 100);
+                            mandiriPersent = parseFloat((item.posyandu.mandiri / ( PosyanduTotal)) * 100);
+                            aktifPersent = parseFloat((item.posyandu.aktif / ( PosyanduTotal)) * 100);
+                        }
+
+                        let newRow = `
+                            <tr class="detail-row" style="background: #f9f9f9;">
+                                <td>${item.nama}</td>
+                                <td>${ item.posyandu != null ? item.posyandu.pratama : 0}</td>
+                                <td>${parseFloat(pratamaPersent.toFixed(2))}%</td>
+                                <td>${ item.posyandu != null ? item.posyandu.madya : 0}</td>
+                                <td>${parseFloat(madyaPersent.toFixed(2))}%</td>
+                                <td>${ item.posyandu != null ? item.posyandu.purnama : 0}</td>
+                                <td>${parseFloat(purnamaPersent.toFixed(2))}%</td>
+                                <td>${ item.posyandu != null ? item.posyandu.mandiri : 0}</td>
+                                <td>${parseFloat(mandiriPersent.toFixed(2))}%</td>
+                                <td>${PosyanduTotal}</td>
+                                <td>${ item.posyandu != null ? item.posyandu.aktif : 0}</td>
+                                <td>${parseFloat(aktifPersent.toFixed(2))}%</td>
+                                <td>${ item.posyandu != null ? item.posyandu.posbindu : 0}</td>
+
+                                <td></td>
+                            </tr>
+                            `;
+                        $clickedRow.after(newRow); // Insert the new row after the clicked row
+                        $clickedRow = $clickedRow.next(); // Move reference to the new row for subsequent inserts
+                    });
+                    }
+                });
+            }
+            console.log(id);
+        })
         $('#induk_opd').change(function(){
             let valueOpd = $("#induk_opd").val()
             $.ajax({
@@ -248,7 +330,7 @@
                 <div class="col-md-10">
                     {!! Form::number('kode',null,['class'=>'form-control','id'=>"nama"]) !!}
                 </div>
-            </div>     
+            </div>
                 `
                 $('.modal-body').html(template)
                 $('#submitButton').attr('form', 'storeForm')
@@ -295,35 +377,35 @@
             <div class="mb-3 row">
                 <div class="col-md-10" id="bezettingField">
                 </div>
-            </div>     
+            </div>
             <div class="mb-3 row">
                 <label for="name" class="col-md-2 col-form-label">Posyandu Purnama</label>
             </div>
             <div class="mb-3 row">
                 <div class="col-md-10" id="purnamaField">
                 </div>
-            </div>     
+            </div>
             <div class="mb-3 row">
                 <label for="name" class="col-md-2 col-form-label">Posyandu Mandiri</label>
             </div>
             <div class="mb-3 row">
                 <div class="col-md-10" id="mandiriField">
                 </div>
-            </div>     
+            </div>
             <div class="mb-3 row">
                 <label for="name" class="col-md-2 col-form-label">Posyandu Aktif</label>
             </div>
             <div class="mb-3 row">
                 <div class="col-md-10" id="aktifField">
                 </div>
-            </div>     
+            </div>
             <div class="mb-3 row">
                 <label for="name" class="col-md-2 col-form-label">Posbindu</label>
             </div>
             <div class="mb-3 row">
                 <div class="col-md-10" id="posbinduField">
                 </div>
-            </div>     
+            </div>
                 `
                 $('.modal-body').html(template)
                 $('#nama_field').html(textUraian)
@@ -363,7 +445,7 @@
             <div class="mb-3 row">
                 <div class="col-md-10" id="nama_field">
                 </div>
-            </div>  
+            </div>
                 `
                 $('.modal-body').html(template)
                 $('#nama_field').html(textUraian)
@@ -397,7 +479,7 @@
             <div class="mb-3 row">
                 <div class="col-md-10" id="nama_field">
                 </div>
-            </div> 
+            </div>
                 `
                 $('.modal-body').html(template)
                 $('#nama_field').html(textNama)
@@ -431,7 +513,7 @@
             <div class="mb-3 row">
                 <div class="col-md-10" id="nama_field">
                 </div>
-            </div>  
+            </div>
                 `
                 $('.modal-body').html(template)
                 $('#nama_field').html(textNama)
@@ -464,7 +546,7 @@
             <div class="mb-3 row">
                 <div class="col-md-10" id="nama_field">
                 </div>
-            </div> 
+            </div>
                 `
                 $('.modal-body').html(template)
                 $('#nama_field').html(textNama)

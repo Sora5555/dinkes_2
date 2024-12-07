@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\KelompokUmur;
 use App\Models\MelekHuruf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
+use Maatwebsite\Excel\Facades\Excel;
 
 class MelekHurufController extends Controller
 {
@@ -19,7 +22,7 @@ class MelekHurufController extends Controller
     public function index()
     {
         //
-        $MelekHuruf = MelekHuruf::all();
+        $MelekHuruf = MelekHuruf::whereYear('created_at', Session::get('year'))->get();
         $KelompokUmur = KelompokUmur::where('batas_bawah', '>=', 15)->get();
         $laki_laki = $KelompokUmur->sum('laki_laki');
         $perempuan = $KelompokUmur->sum('perempuan');
@@ -71,6 +74,49 @@ class MelekHurufController extends Controller
             'persen_perempuan' => $persen_perempuan,
             'persen_laki_laki_perempuan' => $persen_laki_laki_perempuan,
         ]);
+    }
+
+    public function import(Request $request)
+    {
+        $file = $request->file('excel_file');
+        function check_internet_connection() {
+            return @fsockopen("www.google.com", 80); // Open a connection to google.com on port 80 (HTTP) - Change the domain if needed
+        }
+        // dd($request->all());
+
+        $data = Excel::toArray([], $file, null, \Maatwebsite\Excel\Excel::XLSX)[0];
+        DB::BeginTransaction();
+                        // dd($data);
+        foreach ($data as $key => $row) {
+            if($key == 0 || $key == 1){
+                continue;
+            } else {
+
+                // $KelompokUmurExist = KelompokUmur::where('batas_bawah', $row[1])->where('batas_atas', $row[2])->whereYear('created_at', Session::get('year'))->first();
+                // // dd($ObatEsensialExist);
+                // if($KelompokUmurExist) {
+                //     $KelompokUmurStore = KelompokUmur::find($KelompokUmurExist->id);
+                // } else {
+
+                //     $KelompokUmurStore->batas_bawah = $row[1];
+                //     $KelompokUmurStore->batas_atas = $row[2];
+                // }
+                $MelekHurufStore = new MelekHuruf();
+                $MelekHurufStore->variabel = $row[1];
+                $MelekHurufStore->laki_laki = $row[2];
+                $MelekHurufStore->perempuan = $row[3];
+                $MelekHurufStore->save();
+
+                setlocale(LC_TIME, 0);
+            }
+            if (!check_internet_connection()) {
+                DB::rollBack(); // Rollback the transaction
+                return redirect()->back()->with('error', 'Koneksi Hilang saat proses import data');
+            }
+        }
+        DB::commit();
+
+        return redirect(route($this->routeName.'.index'))->with(['success'=>'Berhasil Menambah Sasaran']);
     }
 
     /**

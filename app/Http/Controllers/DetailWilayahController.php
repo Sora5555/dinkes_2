@@ -6,6 +6,9 @@ use App\Models\IndukOpd;
 use App\Models\UnitKerja;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
+use Maatwebsite\Excel\Facades\Excel;
 
 class DetailWilayahController extends Controller
 {
@@ -20,7 +23,7 @@ class DetailWilayahController extends Controller
     public function index(Request $request)
     {
 
-        $unit_kerja = UnitKerja::all();
+        $unit_kerja = UnitKerja::whereYear('created_at', Session::get('year'))->get();
         $total_luas_wilayah = 0;
         $total_desa = 0;
         $total_kelurahan = 0;
@@ -85,6 +88,56 @@ class DetailWilayahController extends Controller
             'rata_rata_rumah_tangga' => $rata_rata_rumah_tangga,
             'kepadatanPenduduk' => $request->kepadatanPenduduk,
         ]);
+    }
+
+    public function import(Request $request)
+    {
+        $file = $request->file('excel_file');
+        function check_internet_connection() {
+            return @fsockopen("www.google.com", 80); // Open a connection to google.com on port 80 (HTTP) - Change the domain if needed
+        }
+        // dd($request->all());
+
+        $data = Excel::toArray([], $file, null, \Maatwebsite\Excel\Excel::XLSX)[0];
+        DB::BeginTransaction();
+                        // dd($data);
+        foreach ($data as $key => $row) {
+            if($key == 0 || $key == 1){
+                continue;
+            } else {
+
+                $indukOPD = IndukOpd::where('nama', 'LIKE', '%'.$row[1].'%')->first();
+
+                if($indukOPD) {
+
+                    $UnitKerjaExist = UnitKerja::where('induk_opd_id', $indukOPD->id)->whereYear('created_at', Session::get('year'))->first();
+                    if($UnitKerjaExist) {
+                        $UnitKerjaAdd = UnitKerja::find($UnitKerjaExist->id);
+                    } else {
+                        $UnitKerjaAdd = new UnitKerja;
+                    }
+
+                    $UnitKerjaAdd->induk_opd_id = $indukOPD->id;
+                    $UnitKerjaAdd->kecamatan = "null";
+                    $UnitKerjaAdd->nama = $row[1];
+                    $UnitKerjaAdd->tipe = "Puskesmas";
+                    $UnitKerjaAdd->luas_wilayah = $row[2];
+                    $UnitKerjaAdd->kelurahan = $row[3];
+                    $UnitKerjaAdd->jumlah_penduduk = $row[4];
+                    $UnitKerjaAdd->jumlah_rumah_tangga = $row[5];
+                    $UnitKerjaAdd->save();
+                }
+
+                setlocale(LC_TIME, 0);
+            }
+            if (!check_internet_connection()) {
+                DB::rollBack(); // Rollback the transaction
+                return redirect()->back()->with('error', 'Koneksi Hilang saat proses import data');
+            }
+        }
+        DB::commit();
+
+        return redirect(route($this->routeName.'.index'))->with(['success'=>'Berhasil Menambah Sasaran']);
     }
 
     /**

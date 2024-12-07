@@ -36,6 +36,18 @@
                         the construction function: <code>$().DataTable();</code>.
                     </p> --}}
                     <div class="table-responsive">
+                        <form action="{{url('import_kategori_opd')}}" method="post" enctype="multipart/form-data">
+                            @csrf
+                            <div class="row">
+                                <div class="col-10">
+                                    <input type="file" name="excel_file" class="form-control" id="">
+                                </div>
+                                <div class="col-2">
+                                    <button type="submit" class="btn btn-success">Import</button>
+                                </div>
+                            </div>
+                        </form>
+                        <br>
                         <table id="data" class="table table-bordered" style="width:100%;">
                             <thead class="text-center">
                             <tr>
@@ -62,6 +74,7 @@
                                 <th>L</th>
                                 <th>P</th>
                                 <th>L + P</th>
+                                <th></th>
                             </tr>
                             </thead>
                             <tbody>
@@ -69,18 +82,19 @@
                                     <tr>
                                         <td>{{$item->id}}</td>
                                         <td>{{$item->nama}}</td>
-                                        <td>{{$item->AhliLabMedik->laki_laki}}</td>
-                                        <td>{{$item->AhliLabMedik->perempuan}}</td>
-                                        <td>{{$item->AhliLabMedik->laki_laki + $item->AhliLabMedik->perempuan}}</td>
-                                        <td>{{$item->TenagaTeknikBiomedik->laki_laki}}</td>
-                                        <td>{{$item->TenagaTeknikBiomedik->perempuan}}</td>
-                                        <td>{{$item->TenagaTeknikBiomedik->laki_laki + $item->TenagaTeknikBiomedik->perempuan}}</td>
-                                        <td>{{$item->TerapiFisik->laki_laki}}</td>
-                                        <td>{{$item->TerapiFisik->perempuan}}</td>
-                                        <td>{{$item->TerapiFisik->laki_laki + $item->TerapiFisik->perempuan}}</td>
-                                        <td>{{$item->KeteknisanMedik->laki_laki}}</td>
-                                        <td>{{$item->KeteknisanMedik->perempuan}}</td>
-                                        <td>{{$item->KeteknisanMedik->laki_laki + $item->KeteknisanMedik->perempuan}}</td>
+                                        <td>{{$item->AhliLabMedik->sum("laki_laki")}}</td>
+                                        <td>{{$item->AhliLabMedik->sum("perempuan")}}</td>
+                                        <td>{{$item->AhliLabMedik->sum("laki_laki") + $item->AhliLabMedik->sum("perempuan")}}</td>
+                                        <td>{{$item->TenagaTeknikBiomedik->sum("laki_laki")}}</td>
+                                        <td>{{$item->TenagaTeknikBiomedik->sum("perempuan")}}</td>
+                                        <td>{{$item->TenagaTeknikBiomedik->sum("laki_laki") + $item->TenagaTeknikBiomedik->sum("perempuan")}}</td>
+                                        <td>{{$item->TerapiFisik->sum("laki_laki")}}</td>
+                                        <td>{{$item->TerapiFisik->sum("perempuan")}}</td>
+                                        <td>{{$item->TerapiFisik->sum("laki_laki") + $item->TerapiFisik->sum("perempuan")}}</td>
+                                        <td>{{$item->KeteknisanMedik->sum("laki_laki")}}</td>
+                                        <td>{{$item->KeteknisanMedik->sum("perempuan")}}</td>
+                                        <td>{{$item->KeteknisanMedik->sum("laki_laki") + $item->KeteknisanMedik->sum("perempuan")}}</td>
+                                        <td><button class="btn btn-success detail" id="{{$item->id}}">Detail desa</button></td>
                                         @role("Pihak Wajib Pajak")
                                         <td><a class="btn btn-mod2 btn-warning" id="{{$item->id}}"><i class="mdi mdi-pen"></a></td>
                                         @endrole
@@ -157,6 +171,57 @@
             ],
         });
 
+        $('#data').on('click', '.detail', function(){
+            let id = $(this).attr('id');
+            let $clickedRow = $(this).closest('tr'); // Get the clicked row elements
+            if ($clickedRow.next().hasClass('detail-row')) {
+                $clickedRow.nextAll('.detail-row').remove();
+            } else {
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+
+                $.ajax({
+                    'type' 	: 'GET',
+                    'url'	: `/kategori_opd/${id}`,
+                    'data'	: {'id': id},
+                    success	: function(res){
+                        console.log(res);
+
+
+                        $clickedRow.nextAll('.detail-row').remove();
+                        res.forEach(function(item) {
+                        let newRow = `
+                            <tr class="detail-row" style="background: #f9f9f9;">
+                                <td></td>
+                                <td>${item.nama}</td>
+                                <td>${ item.ahli_lab_medik != null ? item.ahli_lab_medik.laki_laki : 0}</td>
+                                <td>${ item.ahli_lab_medik != null ? item.ahli_lab_medik.perempuan : 0}</td>
+                                <td>${ item.ahli_lab_medik != null ? parseInt(item.ahli_lab_medik.laki_laki + item.ahli_lab_medik.perempuan) : 0}</td>
+                                <td>${item.tenaga_teknik_biomedik != null ? item.tenaga_teknik_biomedik.laki_laki : 0}</td>
+                                <td>${item.tenaga_teknik_biomedik != null ? item.tenaga_teknik_biomedik.perempuan : 0}</td>
+                                <td>${item.tenaga_teknik_biomedik != null ? parseInt(item.tenaga_teknik_biomedik.laki_laki + item.tenaga_teknik_biomedik.perempuan) : 0}</td>
+                                <td>${ item.terapi_fisik != null ? item.terapi_fisik.laki_laki : 0}</td>
+                                <td>${ item.terapi_fisik != null ? item.terapi_fisik.perempuan : 0}</td>
+                                <td>${ item.terapi_fisik != null ? parseInt(item.terapi_fisik.laki_laki + item.terapi_fisik.perempuan) : 0}</td>
+                                <td>${item.keteknisan_medik != null ? item.keteknisan_medik.laki_laki : 0}</td>
+                                <td>${item.keteknisan_medik != null ? item.keteknisan_medik.perempuan : 0}</td>
+                                <td>${item.keteknisan_medik != null ? parseInt(item.keteknisan_medik.laki_laki + item.keteknisan_medik.perempuan) : 0}</td>
+                                <td></td>
+                            </tr>
+                            `;
+                        $clickedRow.after(newRow); // Insert the new row after the clicked row
+                        $clickedRow = $clickedRow.next(); // Move reference to the new row for subsequent inserts
+                    });
+                    }
+                });
+            }
+            console.log(id);
+        })
+
+
         $('#data').on('click', '.btn-mod2', function(){
             let id = $(this).attr('id');
 
@@ -192,7 +257,7 @@
             <div class="mb-3 row">
                 <div class="col-md-10" id="bezettingField">
                 </div>
-            </div>     
+            </div>
             </div>
             <div class="mb-3 row">
                 <label for="name" class="col-md-2 col-form-label">Terapi Fisik (L)</label>
@@ -200,42 +265,42 @@
             <div class="mb-3 row">
                 <div class="col-md-10" id="apotekerLakiLakiField">
                 </div>
-            </div>     
+            </div>
             <div class="mb-3 row">
                 <label for="name" class="col-md-2 col-form-label">Terapi Fisik (P)</label>
             </div>
             <div class="mb-3 row">
                 <div class="col-md-10" id="apotekerPerempuanField">
                 </div>
-            </div>     
+            </div>
             <div class="mb-3 row">
                 <label for="name" class="col-md-2 col-form-label">Lab Medik (L)</label>
             </div>
             <div class="mb-3 row">
                 <div class="col-md-10" id="LabMedikLakiLakiField">
                 </div>
-            </div>     
+            </div>
             <div class="mb-3 row">
                 <label for="name" class="col-md-2 col-form-label">Lab Medik (P)</label>
             </div>
             <div class="mb-3 row">
                 <div class="col-md-10" id="LabMedikPerempuanField">
                 </div>
-            </div>     
+            </div>
             <div class="mb-3 row">
                 <label for="name" class="col-md-2 col-form-label">Keteknisan Medik (L)</label>
             </div>
             <div class="mb-3 row">
                 <div class="col-md-10" id="KeteknisanMedikLakiLakiField">
                 </div>
-            </div>     
+            </div>
             <div class="mb-3 row">
                 <label for="name" class="col-md-2 col-form-label">Keteknisan Medik (P)</label>
             </div>
             <div class="mb-3 row">
                 <div class="col-md-10" id="KeteknisanMedikPerempuanField">
                 </div>
-            </div>     
+            </div>
                 `
                 $('.modal-body').html(template)
                 $('#nama_field').html(textUraian)

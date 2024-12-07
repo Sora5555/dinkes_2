@@ -205,6 +205,9 @@ Route::get('/dashboard', [HomeController::class,'index'])->middleware(['auth'])-
 
 Route::middleware(['auth'])->group(function()use($ctrl){
     Route::resource('program', ProgramController::class);
+    Route::post('/import_program', [ProgramController::class, 'import']);
+
+
     Route::resource('user', UserController::class);
     Route::resource('log', LogController::class);
     Route::resource('jabatan', JabatanController::class);
@@ -356,10 +359,20 @@ Route::middleware(['auth'])->group(function()use($ctrl){
     Route::resource('kategori_industri', KategoriIndustriController::class);
     Route::resource('pelunasan', PelunasanController::class);
     Route::resource('kategori_opd', KategoriOpdController::class);
+    Route::post('/import_kategori_opd', [KategoriOpdController::class, 'import']);
+
     Route::resource('unit_organisasi', UnitOrganisasiController::class);
+    Route::post('/import_unit_organisasi', [UnitOrganisasiController::class, 'import']);
+
     Route::resource('jabatan', JabatanController::class);
+    Route::post('/import_jabatan', [JabatanController::class, 'import']);
+
     Route::resource('kegiatan', KegiatanController::class);
+    Route::post('/import_kegiatan', [KegiatanController::class, 'import']);
+
     Route::resource('sub_kegiatan', SubKegiatanController::class);
+    Route::post('/import_sub_kegiatan', [SubKegiatanController::class, 'import']);
+
     Route::resource('sasaran_sub_kegiatan', sasaranSubKegiatanController::class);
     Route::resource('indikator_sub_kegiatan', indikatorSubKegiatanController::class);
     Route::resource('IbuHamil', IbuHamilDanBersalinController::class);
@@ -386,13 +399,29 @@ Route::middleware(['auth'])->group(function()use($ctrl){
     Route::resource('keperawatan', KeperawatanController::class);
     Route::resource('verifikasi', VerifikasiController::class);
     Route::resource('DetailWilayah', DetailWilayahController::class);
+    Route::post('/import_DetailWilayah', [DetailWilayahController::class, 'import']);
+
+
     Route::resource('pengelola_program', PengelolaProgramController::class);
     Route::resource('ObatEsensial', ObatEsensialController::class);
+    Route::post('/import_ObatEsensial', [ObatEsensialController::class, 'import']);
+
     Route::resource('KelompokUmur', KelompokUmurController::class);
+    Route::post('/import_KelompokUmur', [KelompokUmurController::class, 'import']);
+
+
     Route::resource('MelekHuruf', MelekHurufController::class);
+    Route::post('/import_MelekHuruf', [MelekHurufController::class, 'import']);
+
     Route::resource('FasilitasKesehatan', FasilitasKesehatanController::class);
+    Route::post('/import_FasilitasKesehatan', [FasilitasKesehatanController::class, 'import']);
+
     Route::resource('GawatDaruratSatu', GawatDaruratSatuController::class);
+    // Route::post('/import_GawatDaruratSatu', [GawatDaruratSatuController::class, 'import']);
+
     Route::resource('AngkaKematian', AngkaKematianController::class);
+    Route::post('/import_AngkaKematian', [AngkaKematianController::class, 'import']);
+
     Route::resource('IndikatorKinerja', IndikatorKinerjaController::class);
     Route::resource('Obat', ObatController::class);
     Route::post('ObatNew', [ObatController::class, 'ObatNew'])->name('ObatNew');
@@ -574,6 +603,8 @@ Route::middleware(['auth'])->group(function()use($ctrl){
     Route::resource('sasaran_rpjmd', SasaranRpjmdController::class);
     Route::resource('jenis-denda',DendaController::class);
     Route::resource('pemangku', PemangkuController::class);
+    Route::post('/import_pemangku', [PemangkuController::class, 'import']);
+
     Route::resource('verified', VerifiedController::class);
 
     Route::post('va/{id}', [TagihanController::class, 'va'])->name('req.va');

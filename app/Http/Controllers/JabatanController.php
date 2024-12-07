@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Bidan;
+use App\Models\Desa;
 use DB,Session;
 use App\Models\Log;
 use App\Models\NPA;
@@ -18,6 +19,7 @@ use App\Models\UnitOrganisasi;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
+use Maatwebsite\Excel\Facades\Excel;
 
 class JabatanController extends Controller
 {
@@ -40,9 +42,9 @@ class JabatanController extends Controller
         if(Auth::user()->roles->first()->name !== "Admin"){
             $indukOpd = IndukOpd::where('id', Auth::user()->induk_opd_id)->pluck('nama', 'id');
         }
-        $unit_kerja = UnitKerja::where('id', Auth::user()->unit_kerja_id)->get();
+        $unit_kerja = UnitKerja::where('id', Auth::user()->unit_kerja_id)->whereYear('created_at', Session::get('year'))->get();
         if(Auth::user()->roles->first()->name == "Admin"){
-            $unit_kerja = UnitKerja::all();
+            $unit_kerja = UnitKerja::whereYear('created_at', Session::get('year'))->get();
         }
 
         $data=[
@@ -202,6 +204,120 @@ class JabatanController extends Controller
         }
     }
 
+    public function import(Request $request)
+    {
+        $file = $request->file('excel_file');
+        function check_internet_connection() {
+            return @fsockopen("www.google.com", 80); // Open a connection to google.com on port 80 (HTTP) - Change the domain if needed
+        }
+        // dd($request->all());
+
+        $data = Excel::toArray([], $file, null, \Maatwebsite\Excel\Excel::XLSX)[0];
+        DB::BeginTransaction();
+        foreach ($data as $key => $row) {
+            if($key == 0 || $key == 1){
+                continue;
+            } else {
+                // dd($row);
+
+
+
+                $unit_kerja = UnitKerja::where('nama', 'LIKE', '%'. $row[1] .'%' )->first();
+
+                if($unit_kerja) {
+                    $desa = Desa::where('nama', 'LIKE', '%'. $row[2] .'%')->first();
+                    if($desa) {
+                        $PerawatExist = Perawat::where('unit_kerja_id', $unit_kerja->id)->where('desa_id', $desa->id)->whereYear('created_at', Session::get('year'))->first();
+                        if($PerawatExist) {
+                            $PerawatUpdate = Perawat::find($PerawatExist->id);
+                            $PerawatUpdate->laki_laki = $row[3];
+                            $PerawatUpdate->perempuan = $row[4];
+                            $PerawatUpdate->save();
+                        } else {
+                            $PerawatAdd = new Perawat;
+                            $PerawatAdd->unit_kerja_id = $unit_kerja->id;
+                            $PerawatAdd->desa_id = $desa->id;
+                            $PerawatAdd->laki_laki = $row[3];
+                            $PerawatAdd->perempuan = $row[4];
+                            $PerawatAdd->save();
+                        }
+
+                        $BidanExist = Bidan::where('unit_kerja_id', $unit_kerja->id)->where('desa_id', $desa->id)->whereYear('created_at', Session::get('year'))->first();
+                        if($BidanExist) {
+                            $BidanUpdate = Bidan::find($BidanExist->id);
+                            // $PerawatUpdate->laki_laki = $row[3];
+                            $BidanUpdate->perempuan = $row[5];
+                            $BidanUpdate->save();
+                        } else {
+                            $BidanAdd = new Bidan;
+                            $BidanAdd->unit_kerja_id = $unit_kerja->id;
+                            $BidanAdd->desa_id = $desa->id;
+                            // $PerawatAdd->laki_laki = $row[3];
+                            $BidanAdd->perempuan = $row[5];
+                            $BidanAdd->save();
+                        }
+
+
+                        // $TenagaKesehatanLingkunganExist = TenagaKesehatanLingkungan::where('unit_kerja_id', $unit_kerja->id)->where('desa_id', $desa->id)->whereYear('created_at', Session::get('year'))->first();
+                        // if($TenagaKesehatanLingkunganExist) {
+                        //     $TenagaKesehatanLingkunganUpdate = TenagaKesehatanLingkungan::find($TenagaKesehatanLingkunganExist->id);
+                        //     $TenagaKesehatanLingkunganUpdate->laki_laki = $row[6];
+                        //     $TenagaKesehatanLingkunganUpdate->perempuan = $row[7];
+                        //     $TenagaKesehatanLingkunganUpdate->save();
+                        // } else {
+                        //     $TenagaKesehatanLingkunganAdd = new TenagaKesehatanLingkungan;
+                        //     $TenagaKesehatanLingkunganAdd->unit_kerja_id = $unit_kerja->id;
+                        //     $TenagaKesehatanLingkunganAdd->desa_id = $desa->id;
+                        //     $TenagaKesehatanLingkunganAdd->laki_laki = $row[6];
+                        //     $TenagaKesehatanLingkunganAdd->perempuan = $row[7];
+                        //     $TenagaKesehatanLingkunganAdd->save();
+                        // }
+
+                        // $TenagaGiziExist = TenagaGizi::where('unit_kerja_id', $unit_kerja->id)->where('desa_id', $desa->id)->whereYear('created_at', Session::get('year'))->first();
+                        // if($TenagaGiziExist) {
+                        //     $TenagaGiziUpdate = TenagaGizi::find($TenagaGiziExist->id);
+                        //     $TenagaGiziUpdate->laki_laki = $row[9];
+                        //     $TenagaGiziUpdate->perempuan = $row[10];
+                        //     $TenagaGiziUpdate->save();
+                        // } else {
+                        //     $TenagaGiziAdd = new TenagaGizi;
+                        //     $TenagaGiziAdd->unit_kerja_id = $unit_kerja->id;
+                        //     $TenagaGiziAdd->desa_id = $desa->id;
+                        //     $TenagaGiziAdd->laki_laki = $row[9];
+                        //     $TenagaGiziAdd->perempuan = $row[10];
+                        //     $TenagaGiziAdd->save();
+                        // }
+
+                        // $KeteknisanMedikExist = KeteknisanMedik::where('unit_kerja_id', $unit_kerja->id)->where('desa_id', $desa->id)->whereYear('created_at', Session::get('year'))->first();
+                        // if($KeteknisanMedikExist) {
+                        //     $KeteknisanMedikUpdate = KeteknisanMedik::find($KeteknisanMedikExist->id);
+                        //     $KeteknisanMedikUpdate->laki_laki = $row[12];
+                        //     $KeteknisanMedikUpdate->perempuan = $row[13];
+                        //     $KeteknisanMedikUpdate->save();
+                        // } else {
+                        //     $KeteknisanMedikAdd = new KeteknisanMedik;
+                        //     $KeteknisanMedikAdd->unit_kerja_id = $unit_kerja->id;
+                        //     $KeteknisanMedikAdd->desa_id = $desa->id;
+                        //     $KeteknisanMedikAdd->laki_laki = $row[12];
+                        //     $KeteknisanMedikAdd->perempuan = $row[13];
+                        //     $KeteknisanMedikAdd->save();
+                        // }
+                    }
+
+                }
+
+                setlocale(LC_TIME, 0);
+            }
+            if (!check_internet_connection()) {
+                DB::rollBack(); // Rollback the transaction
+                return redirect()->back()->with('error', 'Koneksi Hilang saat proses import data');
+            }
+        }
+        DB::commit();
+
+        return redirect(route($this->routeName.'.index'))->with(['success'=>'Berhasil Menambah Sasaran']);
+    }
+
     /**
      * Display the specified resource.
      *
@@ -210,7 +326,9 @@ class JabatanController extends Controller
      */
     public function show($id)
     {
-        //
+        $desa = Desa::with('Perawat', 'Bidan')->where('unit_kerja_id',$id)->get();
+
+        return response()->json($desa);
     }
 
     /**
@@ -220,7 +338,7 @@ class JabatanController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
-    {   
+    {
         // return NPA::findOrFail($id)->wilayah->pluck('id');
         $data=[
             'npa'=>NPA::findOrFail($id),
@@ -275,7 +393,7 @@ class JabatanController extends Controller
         try {
             $jabatan = Jabatan::findOrFail($id);
             if(count($jabatan->descendants) > 0){
-                return redirect(route($this->routeName.'.index'))->with(['error'=>'Data Memiliki Anak Data']);    
+                return redirect(route($this->routeName.'.index'))->with(['error'=>'Data Memiliki Anak Data']);
             } else{
                 $jabatan->delete();
             }
@@ -317,7 +435,7 @@ class JabatanController extends Controller
         $modelArr = collect((object) $modelArr);
         $modelArr = $modelArr->toArray();
         $jenisJabatan = JenisJabatan::all();
-        
+
         if(count($unitOrganisasi) > 0){
             return response()->json([
                 'status' => 'success',

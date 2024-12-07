@@ -36,6 +36,18 @@
                         the construction function: <code>$().DataTable();</code>.
                     </p> --}}
                     <div class="table-responsive">
+                        {{-- <form action="{{url('import_GawatDaruratSatu')}}" method="post" enctype="multipart/form-data">
+                            @csrf
+                            <div class="row">
+                                <div class="col-10">
+                                    <input type="file" name="excel_file" class="form-control" id="">
+                                </div>
+                                <div class="col-2">
+                                    <button type="submit" class="btn btn-success">Import</button>
+                                </div>
+                            </div>
+                        </form>
+                        <br> --}}
                         <table id="data" class="table table-bordered dt-responsive" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                             <thead class="text-center">
                             <tr>
@@ -55,14 +67,14 @@
                                 <tr style={{$key % 2 == 0?"background: gray":""}}>
                                     <td>{{$key + 1}}</td>
                                     <td>{{$item->fasilitas_kesehatan}}</td>
-                                    
+
                                     <td>{{$item->kemenkes + $item->pemprov + $item->pemkot + $item->tni_polri + $item->swasta + $item->bumn + $item->ormas}}</td>
-                                    
+
                                     <td><input type="number" name="gawat_darurat_1" id="{{$item->id}}" value="{{$item->gawat_darurat_1}}" class="form-control data-input" style="border: none"></td>
-                                    
+
                                     <td id="persen{{$item->id}}">{{$item->kemenkes + $item->pemprov + $item->pemkot + $item->tni_polri + $item->bumn + $item->swasta + $item->ormas > 0?number_format($item->gawat_darurat_1/($item->kemenkes + $item->pemprov + $item->pemkot + $item->tni_polri + $item->bumn + $item->swasta + $item->ormas) * 100, 2):0}}</td>
-                                    
-                                    
+
+
                                 </tr>
                                 @endforeach
                                 @endrole
@@ -150,7 +162,7 @@
         let params = url.searchParams.get("year");
         let id = $(this).attr('id');
         let persen = $(this).parent().parent().find(`#persen${id}`);
-        
+
 		$.ajaxSetup({
 			headers: {
 				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -165,7 +177,7 @@
                 persen.text(`${res.persen}`);
 			}
 		});
-        
+
         console.log(name, value, id, params);
         })
     </script>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Desa;
 use App\Models\IndukOpd;
 use App\Models\Kegiatan;
 use App\Models\UnitKerja;
@@ -10,6 +11,9 @@ use Illuminate\Http\Request;
 use App\Models\detailSubKegiatan;
 use App\Models\Posyandu;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 
 class SubKegiatanController extends Controller
@@ -27,9 +31,9 @@ class SubKegiatanController extends Controller
         if(Auth::user()->roles->first()->name !== "Admin"){
             $induk_opd_arr = IndukOpd::where('id', Auth::user()->induk_opd_id)->pluck('nama', 'id');
         }
-        $unit_kerja = UnitKerja::where('id', Auth::user()->unit_kerja_id)->get();
+        $unit_kerja = UnitKerja::where('id', Auth::user()->unit_kerja_id)->whereYear('created_at', Session::get('year'))->get();
         if(Auth::user()->roles->first()->name == "Admin"){
-            $unit_kerja = UnitKerja::all();
+            $unit_kerja = UnitKerja::whereYear('created_at', Session::get('year'))->get();
         }
         return view('sub_kegiatan.index',compact('route','title', 'induk_opd_arr', 'unit_kerja'));
     }
@@ -88,6 +92,101 @@ class SubKegiatanController extends Controller
         }
     }
 
+    public function import(Request $request)
+    {
+        $file = $request->file('excel_file');
+        function check_internet_connection() {
+            return @fsockopen("www.google.com", 80); // Open a connection to google.com on port 80 (HTTP) - Change the domain if needed
+        }
+        // dd($request->all());
+
+        $data = Excel::toArray([], $file, null, \Maatwebsite\Excel\Excel::XLSX)[0];
+        DB::BeginTransaction();
+        foreach ($data as $key => $row) {
+            if($key == 0 || $key == 1){
+                continue;
+            } else {
+                // dd($row);
+
+                // <td>${ item.Posyandu != null ? item.Posyandu.pratama : 0}</td>
+                // <td>${parseFloat(pratamaPersent.toFixed(2))}%</td>
+                // <td>${ item.Posyandu != null ? item.Posyandu.madya : 0}</td>
+                // <td>${parseFloat(madyaPersent.toFixed(2))}%</td>
+                // <td>${ item.Posyandu != null ? item.Posyandu.purnama : 0}</td>
+                // <td>${parseFloat(purnamaPersent.toFixed(2))}%</td>
+                // <td>${ item.Posyandu != null ? item.Posyandu.mandiri : 0}</td>
+                // <td>${parseFloat(mandiriPersent.toFixed(2))}%</td>
+                // <td>${PosyanduTotal}</td>
+                // <td>${ item.Posyandu != null ? item.Posyandu.aktif : 0}</td>
+                // <td>${parseFloat(aktifPersent.toFixed(2))}%</td>
+                // <td>${ item.Posyandu != null ? item.Posyandu.posbindu : 0}</td>
+
+                $unit_kerja = UnitKerja::where('nama', 'LIKE', '%'. $row[1] .'%' )->first();
+
+                if($unit_kerja) {
+                    $desa = Desa::where('nama', 'LIKE', '%'. $row[2] .'%')->first();
+                    if($desa) {
+                        $PosyanduExist = Posyandu::where('unit_kerja_id', $unit_kerja->id)->where('desa_id', $desa->id)->whereYear('created_at', Session::get('year'))->first();
+                        if($PosyanduExist) {
+                            $PosyanduUpdate = Posyandu::find($PosyanduExist->id);
+                            $PosyanduUpdate->pratama = $row[3];
+                            $PosyanduUpdate->madya = $row[4];
+                            $PosyanduUpdate->purnama = $row[5];
+                            $PosyanduUpdate->mandiri = $row[6];
+                            $PosyanduUpdate->aktif = $row[7];
+                            $PosyanduUpdate->posbindu = $row[8];
+                            $PosyanduUpdate->save();
+                        } else {
+                            $PosyanduAdd = new Posyandu;
+                            $PosyanduAdd->unit_kerja_id = $unit_kerja->id;
+                            $PosyanduAdd->desa_id = $desa->id;
+                            $PosyanduAdd->pratama = $row[3];
+                            $PosyanduAdd->madya = $row[4];
+                            $PosyanduAdd->purnama = $row[5];
+                            $PosyanduAdd->mandiri = $row[6];
+                            $PosyanduAdd->aktif = $row[7];
+                            $PosyanduAdd->posbindu = $row[8];
+                            $PosyanduAdd->save();
+                        }
+
+                    }
+
+                }
+
+                // $AhliLabMedikExist = AhliLabMedik
+
+
+                // $sasaran_backup = SasaranTahunIbuHamil::where('desa_id', $desa->id)->first();
+
+                // setlocale(LC_TIME, 'id_ID');
+                // $timestamp = Carbon::now()->format('F');
+                // if($sasaran_backup){
+                //     $array_backup = $sasaran_backup->toArray();
+                //     $array_backup_fix = collect($array_backup)->except(['created_at', 'updated_at', 'deleted_at'])->toArray();
+                //     // dd($array_backup_fix);
+                //     BackupSasaranTahunIbuHamil::create($array_backup_fix);
+                //     $sasaran_backup->update([
+                //         "sasaran_jumlah_ibu_hamil" => $row[2],
+                //         'sasaran_april' => 0,
+                //         'status_april' => 0,
+                //         'capaian_april' => 0,
+                //     ]);
+                //     // if($key == 2){
+                //     //     dd($monthNames[$timestamp], $sasaran_backup);
+                //     // }
+                // }
+                setlocale(LC_TIME, 0);
+            }
+            if (!check_internet_connection()) {
+                DB::rollBack(); // Rollback the transaction
+                return redirect()->back()->with('error', 'Koneksi Hilang saat proses import data');
+            }
+        }
+        DB::commit();
+
+        return redirect(route($this->routeName.'.index'))->with(['success'=>'Berhasil Menambah Sasaran']);
+    }
+
     /**
      * Display the specified resource.
      *
@@ -97,6 +196,9 @@ class SubKegiatanController extends Controller
     public function show($id)
     {
         //
+        $desa = Desa::with('Posyandu')->where('unit_kerja_id',$id)->get();
+
+        return response()->json($desa);
     }
 
     /**

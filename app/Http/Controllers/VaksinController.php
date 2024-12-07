@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Vaksin;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 
 class VaksinController extends Controller
 {
@@ -18,9 +19,9 @@ class VaksinController extends Controller
     public function index(Request $request)
     {
 
-        $vaksin = Vaksin::all();
-        $vaksin_tersedia = Vaksin::where('status', 1)->count();
-        $total_vaksin = Vaksin::count();
+        $vaksin = Vaksin::whereYear('created_at', Session::get('year'))->get();
+        $vaksin_tersedia = Vaksin::where('status', 1)->whereYear('created_at', Session::get('year'))->count();
+        $total_vaksin = Vaksin::whereYear('created_at', Session::get('year'))->count();
 
         // dd(UnitKerja::first()->jumlah_k1);
 

@@ -36,6 +36,18 @@
                         the construction function: <code>$().DataTable();</code>.
                     </p> --}}
                     <div class="table-responsive">
+                        <form action="{{url('import_KelompokUmur')}}" method="post" enctype="multipart/form-data">
+                            @csrf
+                            <div class="row">
+                                <div class="col-10">
+                                    <input type="file" name="excel_file" class="form-control" id="">
+                                </div>
+                                <div class="col-2">
+                                    <button type="submit" class="btn btn-success">Import</button>
+                                </div>
+                            </div>
+                        </form>
+                        <br>
                         <table id="data" class="table table-bordered dt-responsive" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                             <thead class="text-center">
                             <tr>
@@ -53,15 +65,15 @@
                                 <tr style={{$key % 2 == 0?"background: gray":""}}>
                                     <td>{{$key + 1}}</td>
                                     <td>{{$item->batas_bawah}} - {{$item->batas_atas}}</td>
-                                    
+
                                     <td><input type="number" name="laki_laki" id="{{$item->id}}" value="{{$item->laki_laki}}" class="form-control data-input" style="border: none"></td>
-                                    
+
                                     <td><input type="number" name="perempuan" id="{{$item->id}}" value="{{$item->perempuan}}" class="form-control data-input" style="border: none"></td>
-                                    
+
                                     <td id="total_laki_laki_perempuan{{$item->id}}">{{$item->laki_laki + $item->perempuan}}</td>
-                                    
+
                                     <td id="rasio{{$item->id}}">{{$item->perempuan>0?number_format($item->laki_laki/$item->perempuan * 100, 2):0}}</td>
-                                    
+
                                 </tr>
                                 @endforeach
                                     <tr>
@@ -158,7 +170,7 @@
         let id = $(this).attr('id');
         let total_laki_laki_perempuan = $(this).parent().parent().find(`#total_laki_laki_perempuan${id}`);
         let rasio = $(this).parent().parent().find(`#rasio${id}`);
-        
+
 		$.ajaxSetup({
 			headers: {
 				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -174,7 +186,7 @@
                 rasio.text(`${res.rasio}%`);
 			}
 		});
-        
+
         console.log(name, value, id, params);
         })
     </script>

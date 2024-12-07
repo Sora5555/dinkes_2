@@ -39,6 +39,18 @@
                         the construction function: <code>$().DataTable();</code>.
                     </p> --}}
                     <div class="table-responsive">
+                        <form action="{{url('import_unit_organisasi')}}" method="post" enctype="multipart/form-data">
+                            @csrf
+                            <div class="row">
+                                <div class="col-10">
+                                    <input type="file" name="excel_file" class="form-control" id="">
+                                </div>
+                                <div class="col-2">
+                                    <button type="submit" class="btn btn-success">Import</button>
+                                </div>
+                            </div>
+                        </form>
+                        <br>
                         <table id="data" class="table table-bordered" style="width:100%;">
                             <thead class="text-center">
                             <tr>
@@ -61,6 +73,7 @@
                                 <th>L</th>
                                 <th>P</th>
                                 <th>L + P</th>
+                                <th></th>
                             </tr>
                             </thead>
                             <tbody>
@@ -68,15 +81,16 @@
                                     <tr>
                                         <td>{{$item->id}}</td>
                                         <td>{{$item->nama}}</td>
-                                        <td>{{$item->TenagaKesehatanMasyarakat->laki_laki}}</td>
-                                        <td>{{$item->TenagaKesehatanMasyarakat->perempuan}}</td>
-                                        <td>{{$item->TenagaKesehatanMasyarakat->laki_laki + $item->TenagaKesehatanMasyarakat->perempuan}}</td>
-                                        <td>{{$item->TenagaKesehatanLingkungan->laki_laki}}</td>
-                                        <td>{{$item->TenagaKesehatanLingkungan->perempuan}}</td>
-                                        <td>{{$item->TenagaKesehatanLingkungan->laki_laki + $item->TenagaKesehatanLingkungan->perempuan}}</td>
-                                        <td>{{$item->TenagaGizi->laki_laki}}</td>
-                                        <td>{{$item->TenagaGizi->perempuan}}</td>
-                                        <td>{{$item->TenagaGizi->laki_laki + $item->TenagaGizi->perempuan}}</td>
+                                        <td>{{$item->TenagaKesehatanMasyarakat->sum("laki_laki")}}</td>
+                                        <td>{{$item->TenagaKesehatanMasyarakat->sum("perempuan")}}</td>
+                                        <td>{{$item->TenagaKesehatanMasyarakat->sum("laki_laki") + $item->TenagaKesehatanMasyarakat->sum("perempuan")}}</td>
+                                        <td>{{$item->TenagaKesehatanLingkungan->sum("laki_laki")}}</td>
+                                        <td>{{$item->TenagaKesehatanLingkungan->sum("perempuan")}}</td>
+                                        <td>{{$item->TenagaKesehatanLingkungan->sum("laki_laki") + $item->TenagaKesehatanLingkungan->sum("perempuan")}}</td>
+                                        <td>{{$item->TenagaGizi->sum("laki_laki")}}</td>
+                                        <td>{{$item->TenagaGizi->sum("perempuan")}}</td>
+                                        <td>{{$item->TenagaGizi->sum("laki_laki") + $item->TenagaGizi->sum("perempuan")}}</td>
+                                        <td><button class="btn btn-success detail" id="{{$item->id}}">Detail desa</button></td>
                                         @role("Pihak Wajib Pajak")
                                         <td><a class="btn btn-mod2 btn-warning" id="{{$item->id}}"><i class="mdi mdi-pen"></a></td>
                                         @endrole
@@ -141,6 +155,58 @@
 
 @push('scripts')
     <script>
+                $('#data').on('click', '.detail', function(){
+            let id = $(this).attr('id');
+            let $clickedRow = $(this).closest('tr'); // Get the clicked row elements
+            if ($clickedRow.next().hasClass('detail-row')) {
+                $clickedRow.nextAll('.detail-row').remove();
+            } else {
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+
+                $.ajax({
+                    'type' 	: 'GET',
+                    'url'	: `/unit_organisasi/${id}`,
+                    'data'	: {'id': id},
+                    success	: function(res){
+                        console.log(res);
+
+
+                        $clickedRow.nextAll('.detail-row').remove();
+                        res.forEach(function(item) {
+                        let newRow = `
+                            <tr class="detail-row" style="background: #f9f9f9;">
+                                <td></td>
+                                <td>${item.nama}</td>
+                                <td>${ item.tenaga_kesehatan_masyarakat != null ? item.tenaga_kesehatan_masyarakat.laki_laki : 0}</td>
+                                <td>${ item.tenaga_kesehatan_masyarakat != null ? item.tenaga_kesehatan_masyarakat.perempuan : 0}</td>
+                                <td>${ item.tenaga_kesehatan_masyarakat != null ? parseInt(item.tenaga_kesehatan_masyarakat.laki_laki + item.tenaga_kesehatan_masyarakat.perempuan) : 0}</td>
+                                <td>${item.tenaga_kesehatan_lingkungan != null ? item.tenaga_kesehatan_lingkungan.laki_laki : 0}</td>
+                                <td>${item.tenaga_kesehatan_lingkungan != null ? item.tenaga_kesehatan_lingkungan.perempuan : 0}</td>
+                                <td>${item.tenaga_kesehatan_lingkungan != null ? parseInt(item.tenaga_kesehatan_lingkungan.laki_laki + item.tenaga_kesehatan_lingkungan.perempuan) : 0}</td>
+                                <td>${ item.tenaga_gizi != null ? item.tenaga_gizi.laki_laki : 0}</td>
+                                <td>${ item.tenaga_gizi != null ? item.tenaga_gizi.perempuan : 0}</td>
+                                <td>${ item.tenaga_gizi != null ? parseInt(item.tenaga_gizi.laki_laki + item.tenaga_gizi.perempuan) : 0}</td>
+                                <td></td>
+                            </tr>
+                            `;
+                        $clickedRow.after(newRow); // Insert the new row after the clicked row
+                        $clickedRow = $clickedRow.next(); // Move reference to the new row for subsequent inserts
+                    });
+                    }
+                });
+            }
+            console.log(id);
+        })
+    </script>
+@endpush
+
+{{-- @push('scripts')
+    <script>
+
         var table = $('#datatable').removeAttr('width').DataTable({
             responsive:false,
             processing: true,
@@ -208,7 +274,7 @@
             <div class="mb-3 row">
                 <div class="col-md-10" id="bezettingField">
                 </div>
-            </div>     
+            </div>
             </div>
             <div class="mb-3 row">
                 <label for="name" class="col-md-2 col-form-label">Tenaga Gizi (L)</label>
@@ -216,28 +282,28 @@
             <div class="mb-3 row">
                 <div class="col-md-10" id="apotekerLakiLakiField">
                 </div>
-            </div>     
+            </div>
             <div class="mb-3 row">
                 <label for="name" class="col-md-2 col-form-label">Tenaga Gizi (P)</label>
             </div>
             <div class="mb-3 row">
                 <div class="col-md-10" id="apotekerPerempuanField">
                 </div>
-            </div>     
+            </div>
             <div class="mb-3 row">
                 <label for="name" class="col-md-2 col-form-label">Kesehatan Lingkungan (L)</label>
             </div>
             <div class="mb-3 row">
                 <div class="col-md-10" id="LabMedikLakiLakiField">
                 </div>
-            </div>     
+            </div>
             <div class="mb-3 row">
                 <label for="name" class="col-md-2 col-form-label">Kesehatan Lingkungan (P)</label>
             </div>
             <div class="mb-3 row">
                 <div class="col-md-10" id="LabMedikPerempuanField">
                 </div>
-            </div>          
+            </div>
                 `
                 $('.modal-body').html(template)
                 $('#nama_field').html(textUraian)
@@ -259,5 +325,5 @@
 
         })
     </script>
-@endpush
+@endpush --}}
 @endsection

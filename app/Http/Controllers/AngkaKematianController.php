@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AngkaKematian;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 
 class AngkaKematianController extends Controller
 {
@@ -18,7 +19,7 @@ class AngkaKematianController extends Controller
     public function index()
     {
         //
-        $AngkaKematian = AngkaKematian::all();
+        $AngkaKematian = AngkaKematian::whereYear('created_at', Session::get('year'))->get();
         $total_tempat_tidur = 0;
         $total_pasien_keluar_hidup_mati_L = 0;
         $total_pasien_keluar_hidup_mati_P = 0;
@@ -30,10 +31,10 @@ class AngkaKematianController extends Controller
             $total_tempat_tidur += $ak->jumlah_tempat_tidur;
             $total_pasien_keluar_hidup_mati_L += $ak->pasien_keluar_hidup_mati_L;
             $total_pasien_keluar_hidup_mati_P += $ak->pasien_keluar_hidup_mati_P;
-            $total_pasien_keluar_mati_L += $ak->pasien_keluar_mati_L; 
-            $total_pasien_keluar_mati_P += $ak->pasien_keluar_mati_P; 
-            $total_pasien_keluar_mati_48_L += $ak->pasien_keluar_mati_48_L; 
-            $total_pasien_keluar_mati_48_P += $ak->pasien_keluar_mati_48_P; 
+            $total_pasien_keluar_mati_L += $ak->pasien_keluar_mati_L;
+            $total_pasien_keluar_mati_P += $ak->pasien_keluar_mati_P;
+            $total_pasien_keluar_mati_48_L += $ak->pasien_keluar_mati_48_L;
+            $total_pasien_keluar_mati_48_P += $ak->pasien_keluar_mati_48_P;
         }
         $data=[
             'route'=>$this->routeName,
@@ -79,11 +80,11 @@ class AngkaKematianController extends Controller
         $gross_death_rate_L = $angkaKematian->pasien_keluar_hidup_mati_L>0?number_format($angkaKematian->pasien_keluar_mati_L/$angkaKematian->pasien_keluar_hidup_mati_L * 100, 2):0;
         $gross_death_rate_P = $angkaKematian->pasien_keluar_hidup_mati_P>0?number_format($angkaKematian->pasien_keluar_mati_P/$angkaKematian->pasien_keluar_hidup_mati_P * 100, 2):0;
         $gross_death_rate_LP = $angkaKematian->pasien_keluar_hidup_mati_P + $angkaKematian->pasien_keluar_hidup_mati_P>0?number_format(($angkaKematian->pasien_keluar_mati_P + $angkaKematian->pasien_keluar_mati_L)/($angkaKematian->pasien_keluar_hidup_mati_P + $angkaKematian->pasien_keluar_hidup_mati_L) * 100, 2):0;
-        
+
         $net_death_rate_L = $angkaKematian->pasien_keluar_mati_48_L>0?number_format($angkaKematian->pasien_keluar_mati_L/$angkaKematian->pasien_keluar_mati_48_L * 100, 2):0;
         $net_death_rate_P = $angkaKematian->pasien_keluar_mati_48_P>0?number_format($angkaKematian->pasien_keluar_mati_P/$angkaKematian->pasien_keluar_mati_48_P * 100, 2):0;
         $net_death_rate_LP = $angkaKematian->pasien_keluar_mati_48_P + $angkaKematian->pasien_keluar_mati_48_P>0?number_format(($angkaKematian->pasien_keluar_mati_P + $angkaKematian->pasien_keluar_mati_L)/($angkaKematian->pasien_keluar_mati_48_P + $angkaKematian->pasien_keluar_mati_48_L) * 100, 2):0;
-        
+
         return response()->json([
             'status' => 'success',
             'jumlah_pasien_keluar_hidup_mati' => $jumlah_pasien_keluar_hidup_mati,

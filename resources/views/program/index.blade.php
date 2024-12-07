@@ -38,6 +38,18 @@
                         the construction function: <code>$().DataTable();</code>.
                     </p> --}}
                     <div class="table-responsive">
+                        <form action="{{url('import_program')}}" method="post" enctype="multipart/form-data">
+                            @csrf
+                            <div class="row">
+                                <div class="col-10">
+                                    <input type="file" name="excel_file" class="form-control" id="">
+                                </div>
+                                <div class="col-2">
+                                    <button type="submit" class="btn btn-success">Import</button>
+                                </div>
+                            </div>
+                        </form>
+                        <br>
                         <table id="data" class="table table-bordered" style="width:100%;">
                             <thead class="text-center">
                             <tr>
@@ -60,6 +72,7 @@
                                 <th>L</th>
                                 <th>P</th>
                                 <th>L + P</th>
+                                <th></th>
                             </tr>
                             </thead>
                             <tbody>
@@ -67,15 +80,18 @@
                                     <tr>
                                         <td>{{$item->id}}</td>
                                         <td>{{$item->nama}}</td>
-                                        <td>{{$item->TenagaTeknikFarmasi->laki_laki}}</td>
-                                        <td>{{$item->TenagaTeknikFarmasi->perempuan}}</td>
-                                        <td>{{$item->TenagaTeknikFarmasi->laki_laki + $item->TenagaTeknikFarmasi->perempuan}}</td>
-                                        <td>{{$item->Apoteker->laki_laki}}</td>
-                                        <td>{{$item->Apoteker->perempuan}}</td>
-                                        <td>{{$item->Apoteker->laki_laki + $item->Apoteker->perempuan}}</td>
-                                        <td>{{$item->Apoteker->laki_laki + $item->TenagaTeknikFarmasi->laki_laki}}</td>
-                                        <td>{{$item->Apoteker->perempuan + $item->TenagaTeknikFarmasi->perempuan}}</td>
-                                        <td>{{$item->Apoteker->laki_laki + $item->Apoteker->perempuan + $item->TenagaTeknikFarmasi->laki_laki + $item->TenagaTeknikFarmasi->perempuan}}</td>
+                                        <td>{{$item->TenagaTeknikFarmasi->sum("laki_laki")}}</td>
+                                        <td>{{$item->TenagaTeknikFarmasi->sum("perempuan")}}</td>
+                                        <td>{{$item->TenagaTeknikFarmasi->sum("laki_laki") + $item->TenagaTeknikFarmasi->sum("perempuan")}}</td>
+
+                                        <td>{{$item->Apoteker->sum("laki_laki")}}</td>
+                                        <td>{{$item->Apoteker->sum("perempuan")}}</td>
+                                        <td>{{$item->Apoteker->sum("laki_laki") + $item->Apoteker->sum("perempuan")}}</td>
+
+                                        <td>{{$item->Apoteker->sum("laki_laki") + $item->TenagaTeknikFarmasi->sum("laki_laki")}}</td>
+                                        <td>{{$item->Apoteker->sum("perempuan") + $item->TenagaTeknikFarmasi->sum('perempuan')}}</td>
+                                        <td>{{$item->Apoteker->sum("laki_laki") + $item->Apoteker->sum("perempuan") + $item->TenagaTeknikFarmasi->sum("laki_laki") + $item->TenagaTeknikFarmasi->sum("perempuan")}}</td>
+                                        <td><button class="btn btn-success detail" id="{{$item->id}}">Detail desa</button></td>
                                         @role("Pihak Wajib Pajak")
                                         <td><a class="btn btn-mod2 btn-warning" id="{{$item->id}}"><i class="mdi mdi-pen"></a></td>
                                         @endrole
@@ -189,7 +205,7 @@
                 <div class="col-md-10">
                     {!! Form::number('kode',null,['class'=>'form-control','id'=>"nama"]) !!}
                 </div>
-            </div>     
+            </div>
                 `
                 $('.modal-body').html(template)
                 $('#submitButton').attr('form', 'storeForm')
@@ -202,6 +218,56 @@
 
             }
     });
+
+    $('#data').on('click', '.detail', function(){
+            let id = $(this).attr('id');
+            let $clickedRow = $(this).closest('tr'); // Get the clicked row elements
+            if ($clickedRow.next().hasClass('detail-row')) {
+                $clickedRow.nextAll('.detail-row').remove();
+            } else {
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+
+                $.ajax({
+                    'type' 	: 'GET',
+                    'url'	: `/program/${id}`,
+                    'data'	: {'id': id},
+                    success	: function(res){
+                        console.log(res);
+
+                        $clickedRow.nextAll('.detail-row').remove();
+                        res.forEach(function(item) {
+                        let newRow = `
+                            <tr class="detail-row" style="background: #f9f9f9;">
+                                <td></td>
+                                <td>${item.nama}</td>
+                                <td>${ item.tenaga_teknik_farmasi != null ? item.tenaga_teknik_farmasi.laki_laki : 0}</td>
+                                <td>${ item.tenaga_teknik_farmasi != null ? item.tenaga_teknik_farmasi.perempuan : 0}</td>
+                                <td>${ item.tenaga_teknik_farmasi != null ? parseInt(item.tenaga_teknik_farmasi.laki_laki + item.tenaga_teknik_farmasi.perempuan) : 0}</td>
+
+                                <td>${ item.apoteker != null ? item.apoteker.laki_laki : 0}</td>
+                                <td>${ item.apoteker != null ? item.apoteker.perempuan : 0}</td>
+                                <td>${ item.apoteker != null ? parseInt(item.apoteker.laki_laki + item.apoteker.perempuan) : 0}</td>
+
+                                <td>${ item.tenaga_teknik_farmasi != null ? parseInt(item.tenaga_teknik_farmasi.laki_laki + item.apoteker.laki_laki) : 0}</td>
+                                <td>${ item.tenaga_teknik_farmasi != null ? parseInt(item.tenaga_teknik_farmasi.perempuan + item.apoteker.perempuan) : 0}</td>
+                                <td>${ item.tenaga_teknik_farmasi != null ? parseInt(item.tenaga_teknik_farmasi.laki_laki + item.apoteker.laki_laki + item.tenaga_teknik_farmasi.perempuan + item.apoteker.perempuan) : 0}</td>
+
+                                <td></td>
+                            </tr>
+                            `;
+                        $clickedRow.after(newRow); // Insert the new row after the clicked row
+                        $clickedRow = $clickedRow.next(); // Move reference to the new row for subsequent inserts
+                    });
+                    }
+                });
+            }
+            console.log(id);
+        })
+
     $('#data').on('click', '.btn-mod2', function(){
             let id = $(this).attr('id');
 
@@ -233,7 +299,7 @@
             <div class="mb-3 row">
                 <div class="col-md-10" id="bezettingField">
                 </div>
-            </div>     
+            </div>
             </div>
             <div class="mb-3 row">
                 <label for="name" class="col-md-2 col-form-label">Apoteker (L)</label>
@@ -241,14 +307,14 @@
             <div class="mb-3 row">
                 <div class="col-md-10" id="apotekerLakiLakiField">
                 </div>
-            </div>     
+            </div>
             <div class="mb-3 row">
                 <label for="name" class="col-md-2 col-form-label">Apoteker (P)</label>
             </div>
             <div class="mb-3 row">
                 <div class="col-md-10" id="apotekerPerempuanField">
                 </div>
-            </div>     
+            </div>
                 `
                 $('.modal-body').html(template)
                 $('#nama_field').html(textUraian)
@@ -286,7 +352,7 @@
             <div class="mb-3 row">
                 <div class="col-md-10" id="nama_field">
                 </div>
-            </div>  
+            </div>
                 `
                 $('.modal-body').html(template)
                 $('#nama_field').html(textUraian)
@@ -320,7 +386,7 @@
             <div class="mb-3 row">
                 <div class="col-md-10" id="nama_field">
                 </div>
-            </div> 
+            </div>
                 `
                 $('.modal-body').html(template)
                 $('#nama_field').html(textNama)
@@ -354,7 +420,7 @@
             <div class="mb-3 row">
                 <div class="col-md-10" id="nama_field">
                 </div>
-            </div>  
+            </div>
                 `
                 $('.modal-body').html(template)
                 $('#nama_field').html(textNama)
@@ -387,7 +453,7 @@
             <div class="mb-3 row">
                 <div class="col-md-10" id="nama_field">
                 </div>
-            </div> 
+            </div>
                 `
                 $('.modal-body').html(template)
                 $('#nama_field').html(textNama)
