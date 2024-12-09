@@ -40,9 +40,11 @@
                             @csrf
                             <div class="row">
                                 <div class="col-10">
+                                    <label for="">Contoh File Import : <a href="{{asset('import/AngkaKematian Example.xlsx')}}" target="_blank">Download</a></label>
                                     <input type="file" name="excel_file" class="form-control" id="">
                                 </div>
                                 <div class="col-2">
+                                    <label for="">-</label><br>
                                     <button type="submit" class="btn btn-success">Import</button>
                                 </div>
                             </div>
