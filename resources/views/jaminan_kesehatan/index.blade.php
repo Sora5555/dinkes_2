@@ -48,6 +48,17 @@
                         the construction function: <code>$().DataTable();</code>.
                     </p> --}}
                     <div class="table-responsive">
+                        <form action="{{url('import_JaminanKesehatan')}}" method="post" enctype="multipart/form-data">
+                            @csrf
+                            <div class="row">
+                                <div class="col-10">
+                                    <input type="file" name="excel_file" class="form-control" id="">
+                                </div>
+                                <div class="col-2">
+                                    <button type="submit" class="btn btn-success">Import</button>
+                                </div>
+                            </div>
+                        </form>
                         <table id="data" class="table table-bordered dt-responsive" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                             <thead class="text-center">
                             <tr>
@@ -69,10 +80,10 @@
                                 <tr style={{$key % 2 == 0?"background: gray":""}}>
                                     <td>{{$key + 1}}</td>
                                     <td>{{$item->nama_kepesertaan}}</td>
-                                    
+
                                     <td><input type="number" name="jumlah" id="{{$item->id}}" value="{{$item->jumlah}}" class="form-control data-input" style="border: none"></td>
                                     <td id="persen{{$item->id}}">{{$totalPenduduk>0?number_format($item->jumlah/$totalPenduduk, 2):1}}</td>
-                                    
+
                                 </tr>
                                 @endforeach
                                 <tr>
@@ -87,11 +98,11 @@
                                 <tr style={{$key % 2 == 0?"background: gray":""}}>
                                     <td>{{$key + 1}}</td>
                                     <td>{{$item->nama_kepesertaan}}</td>
-                                    
+
                                     <td><input type="number" name="jumlah" id="{{$item->id}}" value="{{$item->jumlah}}" class="form-control data-input" style="border: none"></td>
-                                    
+
                                     <td id="persen{{$item->id}}">{{$totalPenduduk>0?number_format($item->jumlah/$totalPenduduk, 2):0}}</td>
-                                    
+
                                 </tr>
                                 @endforeach
                                 <tr>
@@ -99,7 +110,7 @@
                                     <td>{{$jumlahNonPbi}}</td>
                                     <td>{{$totalPenduduk>0?number_format($jumlahNonPbi/$totalPenduduk, 2):0}}</td>
                                 </tr>
-                               
+
                                 <tr>
                                     <td colspan="2">JUMLAH KAB/KOTA</td>
                                     <td>{{$jumlahNonPbi + $jumlahPbi}}</td>
@@ -191,7 +202,7 @@
         let params = url.searchParams.get("year");
         let id = $(this).attr('id');
         let persen = $(this).parent().parent().find(`#persen${id}`);
-        
+
 		$.ajaxSetup({
 			headers: {
 				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -206,7 +217,7 @@
                 persen.text(`${res.persen}`);
 			}
 		});
-        
+
         console.log(name, value, id, params);
         })
     </script>

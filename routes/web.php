@@ -423,11 +423,18 @@ Route::middleware(['auth'])->group(function()use($ctrl){
     Route::post('/import_AngkaKematian', [AngkaKematianController::class, 'import']);
 
     Route::resource('IndikatorKinerja', IndikatorKinerjaController::class);
+    Route::post('/import_IndikatorKinerja', [IndikatorKinerjaController::class, 'import']);
+
     Route::resource('Obat', ObatController::class);
+    Route::post('/import_Obat', [ObatController::class, 'import']);
     Route::post('ObatNew', [ObatController::class, 'ObatNew'])->name('ObatNew');
     Route::resource('Vaksin', VaksinController::class);
+    Route::post('/import_Vaksin', [VaksinController::class, 'import']);
+
     Route::post('VaksinNew', [VaksinController::class, 'VaksinNew'])->name('VaksinNew');
     Route::resource('JaminanKesehatan', JaminanKesehatanController::class);
+    Route::post('/import_JaminanKesehatan', [JaminanKesehatanController::class, 'import']);
+
     Route::resource('JumlahKematianIbu', JumlahKematianIbuController::class);
     Route::resource('PenyebabKematianIbu', PenyebabKematianIbuController::class);
     Route::resource('ImunBumil', ImunBumilController::class);

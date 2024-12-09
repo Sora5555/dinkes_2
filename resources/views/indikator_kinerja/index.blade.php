@@ -36,6 +36,17 @@
                         the construction function: <code>$().DataTable();</code>.
                     </p> --}}
                     <div class="table-responsive">
+                        <form action="{{url('import_IndikatorKinerja')}}" method="post" enctype="multipart/form-data">
+                            @csrf
+                            <div class="row">
+                                <div class="col-10">
+                                    <input type="file" name="excel_file" class="form-control" id="">
+                                </div>
+                                <div class="col-2">
+                                    <button type="submit" class="btn btn-success">Import</button>
+                                </div>
+                            </div>
+                        </form>
                         <table id="data" class="table table-bordered dt-responsive" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                             <thead class="text-center">
                             <tr>
@@ -57,23 +68,23 @@
                                 <tr style={{$key % 2 == 0?"background: gray":""}}>
                                     <td>{{$key + 2}}</td>
                                     <td>{{$item->nama_rumah_sakit}}</td>
-                                    
+
                                     <td>{{$item->jumlah_tempat_tidur}}</td>
 
                                     <td>{{$item->pasien_keluar_hidup_mati_L + $item->pasien_keluar_hidup_mati_P}}</td>
-                                    
+
                                     <td><input type="number" name="jumlah_hari_perawatan" id="{{$item->id}}" value="{{$item->jumlah_hari_perawatan}}" class="form-control data-input" style="border: none"></td>
-       
+
                                     <td><input type="number" name="jumlah_lama_dirawat" id="{{$item->id}}" value="{{$item->jumlah_lama_dirawat}}" class="form-control data-input" style="border: none"></td>
-                                    
+
                                     <td id="bor{{$item->id}}">{{$item->jumlah_tempat_tidur>0?number_format($item->jumlah_hari_perawatan/($item->jumlah_tempat_tidur * 365) * 100, 2):0}}</td>
-                                    
+
                                     <td id="bto{{$item->id}}">{{$item->jumlah_tempat_tidur>0?number_format(($item->pasien_keluar_hidup_mati_L + $item->pasien_keluar_hidup_mati_P)/($item->jumlah_tempat_tidur), 2):0}}</td>
-                                    
+
                                     <td id="toi{{$item->id}}">{{$item->pasien_keluar_hidup_mati_L + $item->pasien_keluar_hidup_mati_P>0?number_format((($item->jumlah_tempat_tidur * 365)-$item->jumlah_hari_perawatan)/($item->pasien_keluar_hidup_mati_L + $item->pasien_keluar_hidup_mati_P), 2):0}}</td>
-                                    
+
                                     <td id="alos{{$item->id}}">{{$item->pasien_keluar_hidup_mati_L + $item->pasien_keluar_hidup_mati_P>0?number_format(($item->jumlah_lama_dirawat)/($item->pasien_keluar_hidup_mati_L + $item->pasien_keluar_hidup_mati_P), 2):0}}</td>
-                                    
+
                                 </tr>
                                 @endforeach
                                 @endrole
@@ -141,7 +152,7 @@
         let bto = $(this).parent().parent().find(`#bto${id}`);
         let toi = $(this).parent().parent().find(`#toi${id}`);
         let alos = $(this).parent().parent().find(`#alos${id}`);
-        
+
 		$.ajaxSetup({
 			headers: {
 				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -159,7 +170,7 @@
                 alos.text(`${res.alos}`);
 			}
 		});
-        
+
         console.log(name, value, id, params);
         })
     </script>

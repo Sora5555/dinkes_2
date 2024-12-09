@@ -46,6 +46,17 @@
                         </div>
                     </div>
                     <div class="table-responsive">
+                        <form action="{{url('import_Vaksin')}}" method="post" enctype="multipart/form-data">
+                            @csrf
+                            <div class="row">
+                                <div class="col-10">
+                                    <input type="file" name="excel_file" class="form-control" id="">
+                                </div>
+                                <div class="col-2">
+                                    <button type="submit" class="btn btn-success">Import</button>
+                                </div>
+                            </div>
+                        </form>
                         <table id="data" class="table table-bordered dt-responsive" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                             <thead class="text-center">
                             <tr>
@@ -62,7 +73,7 @@
                                     <td>{{$key + 1}}</td>
                                     <td>{{$item->nama_vaksin}}</td>
                                     <td>{{$item->satuan}}</td>
-                                    
+
                                     <td>
                                         <div class="d-flex flex-column gap-2">
                                             <div class="d-flex flex-column align-items-start">
@@ -75,7 +86,7 @@
                                             </div>
                                         </div>
                                     </td>
-                                    
+
                                 </tr>
                                 @endforeach
                                 <tr>
@@ -86,7 +97,7 @@
                                     <td colspan="3">% KABUPATEN/KOTA DENGAN KETERSEDIAAN VAKSIN IDL</td>
                                     <td>{{$total_vaksin?number_format($vaksin_tersedia/$total_vaksin * 100, 2):0}}%</td>
                                 </tr>
-                                
+
                                 @endrole
                             </tbody>
                         </table>
@@ -148,7 +159,7 @@
         $('#data').on('input', '.data-input', function(){
 		let name = $(this).attr('name');
         let id = $(this).attr('id');
-       
+
 		$.ajaxSetup({
 			headers: {
 				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -165,7 +176,7 @@
                }
 			}
 		});
-        
+
         })
     </script>
 @endpush

@@ -36,6 +36,18 @@
                         the construction function: <code>$().DataTable();</code>.
                     </p> --}}
                     <div class="table-responsive">
+                        <form action="{{url('import_AngkaKematian')}}" method="post" enctype="multipart/form-data">
+                            @csrf
+                            <div class="row">
+                                <div class="col-10">
+                                    <input type="file" name="excel_file" class="form-control" id="">
+                                </div>
+                                <div class="col-2">
+                                    <button type="submit" class="btn btn-success">Import</button>
+                                </div>
+                            </div>
+                        </form>
+                        <br>
                         <table id="data" class="table table-bordered dt-responsive" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                             <thead class="text-center">
                             <tr>
@@ -72,38 +84,38 @@
                                 <tr style={{$key % 2 == 0?"background: gray":""}}>
                                     <td>{{$key + 2}}</td>
                                     <td>{{$item->nama_rumah_sakit}}</td>
-                                    
+
                                     <td><input type="number" name="jumlah_tempat_tidur" id="{{$item->id}}" value="{{$item->jumlah_tempat_tidur}}" class="form-control data-input" style="border: none"></td>
-                                    
+
                                     <td><input type="number" name="pasien_keluar_hidup_mati_L" id="{{$item->id}}" value="{{$item->pasien_keluar_hidup_mati_L}}" class="form-control data-input" style="border: none"></td>
-       
+
                                     <td><input type="number" name="pasien_keluar_hidup_mati_P" id="{{$item->id}}" value="{{$item->pasien_keluar_hidup_mati_P}}" class="form-control data-input" style="border: none"></td>
-                                    
+
                                     <td id="jumlah_pasien_keluar_hidup_mati{{$item->id}}">{{$item->pasien_keluar_hidup_mati_P + $item->pasien_keluar_hidup_mati_L}}</td>
-                                    
+
                                     <td><input type="number" name="pasien_keluar_mati_L" id="{{$item->id}}" value="{{$item->pasien_keluar_mati_L}}" class="form-control data-input" style="border: none"></td>
-       
+
                                     <td><input type="number" name="pasien_keluar_mati_P" id="{{$item->id}}" value="{{$item->pasien_keluar_mati_P}}" class="form-control data-input" style="border: none"></td>
-                                    
+
                                     <td id="jumlah_pasien_keluar_mati{{$item->id}}">{{$item->pasien_keluar_mati_L + $item->pasien_keluar__mati_P}}</td>
-                                    
+
                                     <td><input type="number" name="pasien_keluar_mati_48_L" id="{{$item->id}}" value="{{$item->pasien_keluar_mati_48_L}}" class="form-control data-input" style="border: none"></td>
-       
+
                                     <td><input type="number" name="pasien_keluar_mati_48_P" id="{{$item->id}}" value="{{$item->pasien_keluar_mati_48_P}}" class="form-control data-input" style="border: none"></td>
-                                    
+
                                     <td id="jumlah_pasien_keluar_mati_48{{$item->id}}">{{$item->pasien_keluar_mati_L + $item->pasien_keluar__mati_P}}</td>
-                                    
+
                                     <td id="gross_death_rate_L{{$item->id}}">{{$item->pasien_keluar_hidup_mati_L>0?number_format($item->pasien_keluar_mati_L/$item->pasien_keluar_hidup_mati_L * 100, 2):0}}</td>
 
-                                    <td id="gross_death_rate_P{{$item->id}}">{{$item->pasien_keluar_hidup_mati_P>0?number_format($item->pasien_keluar_mati_P/$item->pasien_keluar_hidup_mati_P * 100, 2):0}}</td>                                    
-                                    
-                                    <td id="gross_death_rate_LP{{$item->id}}">{{$item->pasien_keluar_hidup_mati_P+$item->pasien_keluar_hidup_mati_L>0?number_format(($item->pasien_keluar_mati_P+$item->pasien_keluar_mati_L)/($item->pasien_keluar_hidup_mati_L + $item->pasien_keluar_hidup_mati_P) * 100, 2):0}}</td>                                    
-                                    
+                                    <td id="gross_death_rate_P{{$item->id}}">{{$item->pasien_keluar_hidup_mati_P>0?number_format($item->pasien_keluar_mati_P/$item->pasien_keluar_hidup_mati_P * 100, 2):0}}</td>
+
+                                    <td id="gross_death_rate_LP{{$item->id}}">{{$item->pasien_keluar_hidup_mati_P+$item->pasien_keluar_hidup_mati_L>0?number_format(($item->pasien_keluar_mati_P+$item->pasien_keluar_mati_L)/($item->pasien_keluar_hidup_mati_L + $item->pasien_keluar_hidup_mati_P) * 100, 2):0}}</td>
+
                                     <td id="net_death_rate_L{{$item->id}}">{{$item->pasien_keluar_mati_48_L>0?number_format($item->pasien_keluar_mati_L/$item->pasien_keluar_mati_48_L * 100, 2):0}}</td>
 
-                                    <td id="net_death_rate_P{{$item->id}}">{{$item->pasien_keluar_mati_48_P>0?number_format($item->pasien_keluar_mati_P/$item->pasien_keluar_mati_48_P * 100, 2):0}}</td>                                    
-                                    
-                                    <td id="net_death_rate_LP{{$item->id}}">{{$item->pasien_keluar_mati_48_P+$item->pasien_keluar_mati_48_L>0?number_format(($item->pasien_keluar_mati_P+$item->pasien_keluar_mati_L)/($item->pasien_keluar_mati_48_L + $item->pasien_keluar_mati_48_P) * 100, 2):0}}</td>                                    
+                                    <td id="net_death_rate_P{{$item->id}}">{{$item->pasien_keluar_mati_48_P>0?number_format($item->pasien_keluar_mati_P/$item->pasien_keluar_mati_48_P * 100, 2):0}}</td>
+
+                                    <td id="net_death_rate_LP{{$item->id}}">{{$item->pasien_keluar_mati_48_P+$item->pasien_keluar_mati_48_L>0?number_format(($item->pasien_keluar_mati_P+$item->pasien_keluar_mati_L)/($item->pasien_keluar_mati_48_L + $item->pasien_keluar_mati_48_P) * 100, 2):0}}</td>
                                 </tr>
                                 @endforeach
                                 @endrole
@@ -199,7 +211,7 @@
         let net_death_rate_L = $(this).parent().parent().find(`#net_death_rate_L${id}`);
         let net_death_rate_P = $(this).parent().parent().find(`#net_death_rate_P${id}`);
         let net_death_rate_LP = $(this).parent().parent().find(`#net_death_rate_LP${id}`);
-        
+
 		$.ajaxSetup({
 			headers: {
 				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -222,7 +234,7 @@
                 net_death_rate_LP.text(`${res.net_death_rate_LP}`);
 			}
 		});
-        
+
         console.log(name, value, id, params);
         })
     </script>
