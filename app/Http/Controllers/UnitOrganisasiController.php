@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\UnitOrganisasiExport;
 use App\Models\Desa;
 use Session,DB;
 use Carbon\Carbon;
@@ -112,6 +113,14 @@ class UnitOrganisasiController extends Controller
         }
     }
 
+    public function export() {
+        try {
+            return Excel::download(new UnitOrganisasiExport, 'unit_organisasi_report_'.Session::get('year').'.xlsx');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
+        }
+    }
+
 
     public function import(Request $request)
 {
@@ -119,6 +128,8 @@ class UnitOrganisasiController extends Controller
     function check_internet_connection() {
         return @fsockopen("www.google.com", 80); // Open a connection to google.com on port 80 (HTTP) - Change the domain if needed
     }
+
+
     // dd($request->all());
 
     $data = Excel::toArray([], $file, null, \Maatwebsite\Excel\Excel::XLSX)[0];

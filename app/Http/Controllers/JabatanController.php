@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\JabatanExport;
 use App\Models\Bidan;
 use App\Models\Desa;
 use DB,Session;
@@ -201,6 +202,14 @@ class JabatanController extends Controller
         } catch (\Exception $e) {
             DB::rollback();
             return redirect()->back()->with(['error'=>'Gagal Menambah Data Pembayaran : '.$e->getMessage()])->withErrors($request->all());
+        }
+    }
+
+    public function export() {
+        try {
+            return Excel::download(new JabatanExport, 'jabatan_report_'.Session::get('year').'.xlsx');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
         }
     }
 

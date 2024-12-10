@@ -206,7 +206,7 @@ Route::get('/dashboard', [HomeController::class,'index'])->middleware(['auth'])-
 Route::middleware(['auth'])->group(function()use($ctrl){
     Route::resource('program', ProgramController::class);
     Route::post('/import_program', [ProgramController::class, 'import']);
-
+    Route::get('/export_program', [ProgramController::class, 'export']);
 
     Route::resource('user', UserController::class);
     Route::resource('log', LogController::class);
@@ -358,20 +358,26 @@ Route::middleware(['auth'])->group(function()use($ctrl){
     Route::resource('history_email', HistoryEmailController::class);
     Route::resource('kategori_industri', KategoriIndustriController::class);
     Route::resource('pelunasan', PelunasanController::class);
+
     Route::resource('kategori_opd', KategoriOpdController::class);
     Route::post('/import_kategori_opd', [KategoriOpdController::class, 'import']);
+    Route::get('/export_kategori_opd', [KategoriOpdController::class, 'export']);
 
     Route::resource('unit_organisasi', UnitOrganisasiController::class);
     Route::post('/import_unit_organisasi', [UnitOrganisasiController::class, 'import']);
+    Route::get('/export_unit_organisasi', [UnitOrganisasiController::class, 'export']);
 
     Route::resource('jabatan', JabatanController::class);
     Route::post('/import_jabatan', [JabatanController::class, 'import']);
+    Route::get('/export_jabatan', [JabatanController::class, 'export']);
 
     Route::resource('kegiatan', KegiatanController::class);
     Route::post('/import_kegiatan', [KegiatanController::class, 'import']);
+    Route::get('/export_kegiatan', [KegiatanController::class, 'export']);
 
     Route::resource('sub_kegiatan', SubKegiatanController::class);
     Route::post('/import_sub_kegiatan', [SubKegiatanController::class, 'import']);
+    Route::get('/export_sub_kegiatan', [SubKegiatanController::class, 'export']);
 
     Route::resource('sasaran_sub_kegiatan', sasaranSubKegiatanController::class);
     Route::resource('indikator_sub_kegiatan', indikatorSubKegiatanController::class);

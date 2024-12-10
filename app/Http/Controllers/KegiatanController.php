@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\KegiatanExport;
 use App\Models\Desa;
 use App\Models\Program;
 use App\Models\IndukOpd;
@@ -223,6 +224,14 @@ class KegiatanController extends Controller
         DB::commit();
 
         return redirect(route($this->routeName.'.index'))->with(['success'=>'Berhasil Menambah Sasaran']);
+    }
+
+    public function export() {
+        try {
+            return Excel::download(new KegiatanExport, 'kegiatan_report_'.Session::get('year').'.xlsx');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
+        }
     }
 
     /**

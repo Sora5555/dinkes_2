@@ -81,6 +81,10 @@ class UnitKerja extends Model
     public function desa(){
         return $this->hasMany(Desa::class);
     }
+
+    public function detail_desa(){
+        return $this->hasMany(Desa::class);
+    }
     public function k1($year = null){
         $desa = $this->Desa()->get();
         $k1 = 0;

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ProgramExport;
 use App\Models\Apoteker;
 use App\Models\Desa;
 use App\Models\Program;
@@ -94,6 +95,14 @@ class ProgramController extends Controller
         } catch (\Throwable $th) {
             //throw $th;
             dd($th->getMessage());
+        }
+    }
+
+    public function export() {
+        try {
+            return Excel::download(new ProgramExport, 'program_report_'.Session::get('year').'.xlsx');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
         }
     }
 

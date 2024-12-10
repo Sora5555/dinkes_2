@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\SubKegiatanExport;
 use App\Models\Desa;
 use App\Models\IndukOpd;
 use App\Models\Kegiatan;
@@ -89,6 +90,14 @@ class SubKegiatanController extends Controller
         } catch (\Throwable $th) {
             //throw $th;
             dd($th->getMessage());
+        }
+    }
+
+    public function export() {
+        try {
+            return Excel::download(new SubKegiatanExport, 'sub_kegiatan_report_'.Session::get('year').'.xlsx');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
         }
     }
 

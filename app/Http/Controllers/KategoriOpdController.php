@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\KategoriOPDExport;
 use App\Models\AhliLabMedik;
 use App\Models\Desa;
 use App\Models\kategoriOpd;
@@ -229,7 +230,13 @@ class KategoriOpdController extends Controller
     return redirect(route($this->routeName.'.index'))->with(['success'=>'Berhasil Menambah Sasaran']);
 }
 
-
+    public function export() {
+        try {
+            return Excel::download(new KategoriOPDExport, 'kategori_opd_report_'.Session::get('year').'.xlsx');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
+        }
+    }
 
 
 
