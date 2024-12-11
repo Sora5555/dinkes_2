@@ -48,7 +48,7 @@
                         the construction function: <code>$().DataTable();</code>.
                     </p> --}}
                     <table id="data" class="table table-bordered dt-responsive" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
-                        <form action="{{url('import_sub_kegiatan')}}" method="post" enctype="multipart/form-data">
+                        {{-- <form action="{{url('import_sub_kegiatan')}}" method="post" enctype="multipart/form-data">
                             @csrf
                             <div class="row">
                                 <div class="col-10">
@@ -61,7 +61,32 @@
                                     <a href="{{url("/export_sub_kegiatan")}}" class="btn btn-primary">Export</a>
                                 </div>
                             </div>
-                        </form>
+                        </form> --}}
+                        <div class="row justify-content-start mb-2">
+                            <div class="col-md-10 d-flex justify-content-around gap-3">
+                                @if(Auth::user()->downloadFile('sub_kegiatan', Session::get('year')))
+                                <form action="/upload/general" method="post" class="d-flex gap-5" enctype="multipart/form-data">
+                                    @csrf
+                                    <input type="hidden" name="name" value="sub_kegiatan" id="">
+                                    <input type="file" name="file_upload" id="" {{Auth::user()->downloadFile('sub_kegiatan', Session::get('year'))->status == 1 ?"disabled":""}} class="form-control" placeholder="upload PDF file">
+                                    <button type="submit" class="btn btn-success" {{Auth::user()->downloadFile('sub_kegiatan', Session::get('year'))->status == 1?"disabled":""}}>Upload</button>
+
+                                </form>
+                                @else
+                                <form action="/upload/general" method="post" class="d-flex gap-5" enctype="multipart/form-data">
+                                    @csrf
+                                    <input type="hidden" name="name" value="sub_kegiatan" id="">
+                                    <input type="file" name="file_upload" id="" class="form-control" placeholder="upload PDF file">
+                                    <button type="submit" class="btn btn-success">Upload</button>
+
+                                </form>
+                                @endif
+                                @if(Auth::user()->hasFile('sub_kegiatan', Session::get('year')) && Auth::user()->downloadFile('sub_kegiatan', Session::get('year'))->file_name != "-")
+                                    <a type="button" class="btn btn-warning" href="{{ Auth::user()->downloadFile('sub_kegiatan', Session::get('year'))->file_path.Auth::user()->downloadFile('sub_kegiatan', Session::get('year'))->file_name }}" download="" ><i class="mdi mdi-note"></i>Download pdf file</a>
+                                @endif
+                                <a type="button" class="btn btn-warning" href="{{url("/export_sub_kegiatan")}}" ><i class="mdi mdi-note"></i>Report</a>
+                            </div>
+                        </div>
                         <br>
                         <thead class="text-center">
                         <tr>
@@ -91,26 +116,29 @@
                             <th>%</th>
                             <th>Jumlah</th>
                             <th>%</th>
-                            <th></th>
+                            {{-- <th></th> --}}
                         </tr>
                         </thead>
                         <tbody>
                             @foreach ($unit_kerja as $item)
+                                @php
+                                    $persen = ( ($item->Posyandu->pratama ?? 0) + ($item->Posyandu->madya ?? 0) + ($item->Posyandu->purnama ?? 0) + ($item->Posyandu->mandiri ?? 0));
+                                @endphp
                                 <tr>
                                     <td>{{$item->nama}}</td>
-                                    <td>{{$item->Posyandu->sum('pratama')}}</td>
-                                    <td>{{$item->Posyandu->sum('pratama') > 0?number_format(($item->Posyandu->sum('pratama')/($item->Posyandu->sum("pratama") + $item->Posyandu->sum('madya') + $item->Posyandu->sum('purnama') + $item->Posyandu->sum('mandiri')))*100, '2'):0}}%</td>
-                                    <td>{{$item->Posyandu->sum('madya')}}</td>
-                                    <td>{{$item->Posyandu->sum('madya') > 0?number_format(($item->Posyandu->sum('madya')/($item->Posyandu->sum("pratama") + $item->Posyandu->sum('madya') + $item->Posyandu->sum('purnama') + $item->Posyandu->sum('mandiri')))*100, '2'):0}}%</td>
-                                    <td>{{$item->Posyandu->sum('purnama')}}</td>
-                                    <td>{{$item->Posyandu->sum('purnama') > 0?number_format(($item->Posyandu->sum('purnama')/($item->Posyandu->sum("pratama") + $item->Posyandu->sum('madya') + $item->Posyandu->sum('purnama') + $item->Posyandu->sum('mandiri')))*100, '2'):0}}%</td>
-                                    <td>{{$item->Posyandu->sum('mandiri')}}</td>
-                                    <td>{{$item->Posyandu->sum('mandiri') > 0?number_format(($item->Posyandu->sum('mandiri')/($item->Posyandu->sum("pratama") + $item->Posyandu->sum('madya') + $item->Posyandu->sum('purnama') + $item->Posyandu->sum('mandiri')))*100, '2'):0}}%</td>
-                                    <td>{{$item->Posyandu->sum('pratama') + $item->Posyandu->sum('madya') + $item->Posyandu->sum('purnama') + $item->Posyandu->sum('mandiri')}}</td>
-                                    <td>{{$item->Posyandu->sum('aktif')}}</td>
-                                    <td>{{$item->Posyandu->sum('aktif') > 0?number_format(($item->Posyandu->sum('aktif')/($item->Posyandu->sum("pratama") + $item->Posyandu->sum('madya') + $item->Posyandu->sum('purnama') + $item->Posyandu->sum('mandiri')))*100, '2'): 0}}%</td>
-                                    <td>{{$item->Posyandu->sum('posbindu')}}</td>
-                                    <td><button class="btn btn-success detail" id="{{$item->id}}">Detail desa</button></td>
+                                    <td>{{$item->Posyandu->pratama ?? 0}}</td>
+                                    <td>{{($item->Posyandu->pratama ?? 0) > 0?number_format((($item->Posyandu->pratama ?? 0)/$persen)*100, '2'):0}}%</td>
+                                    <td>{{($item->Posyandu->madya ?? 0)}}</td>
+                                    <td>{{ ($item->Posyandu->madya ?? 0) > 0?number_format((($item->Posyandu->madya ?? 0)/($persen))*100, '2'):0}}%</td>
+                                    <td>{{$item->Posyandu->purnama ?? 0}}</td>
+                                    <td>{{  ($item->Posyandu->purnama ?? 0) > 0?number_format((($item->Posyandu->purnama ?? 0)/($persen))*100, '2'):0}}%</td>
+                                    <td>{{$item->Posyandu->mandiri ?? 0}}</td>
+                                    <td>{{ ($item->Posyandu->mandiri ?? 0) > 0?number_format((($item->Posyandu->mandiri ?? 0)/($persen))*100, '2'):0}}%</td>
+                                    <td>{{ ($item->Posyandu->pratama ?? 0) + ($item->Posyandu->madya ?? 0) + ($item->Posyandu->purnama ?? 0) + ($item->Posyandu->mandiri ?? 0)}}</td>
+                                    <td>{{ $item->Posyandu->aktif ?? 0}}</td>
+                                    <td>{{ ($item->Posyandu->aktif ?? 0) > 0?number_format(( ($item->Posyandu->aktif ?? 0)/($persen))*100, '2'): 0}}%</td>
+                                    <td>{{$item->Posyandu->posbindu ?? 0}}</td>
+                                    {{-- <td><button class="btn btn-success detail" id="{{$item->id}}">Detail desa</button></td> --}}
                                     @role("Pihak Wajib Pajak")
                                     <td><a class="btn btn-mod2 btn-warning" id="{{$item->id}}"><i class="mdi mdi-pen"></a></td>
                                     @endrole

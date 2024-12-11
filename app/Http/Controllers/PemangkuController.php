@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\PemangkuExport;
 use App\Models\Desa;
 use App\Models\Dokter;
 use App\Models\DokterGigi;
@@ -46,9 +47,9 @@ class PemangkuController extends Controller
             $induk_opd_arr = IndukOpd::where('id', Auth::user()->induk_opd_id)->pluck('nama', 'id');
         }
         // $golongan = Golongan::pluck('nama', 'id');
-        $unit_kerja = UnitKerja::where('id', Auth::user()->unit_kerja_id)->whereYear('created_at', Session::get('year'))->get();
+        $unit_kerja = UnitKerja::where('id', Auth::user()->unit_kerja_id)->get();
         if(Auth::user()->roles->first()->name == "Admin"){
-            $unit_kerja = UnitKerja::whereYear('created_at', Session::get('year'))->get();
+            $unit_kerja = UnitKerja::get();
         }
         return view('pemangku.index', compact('title', 'route', 'induk_opd_arr', 'unit_kerja'));
     }
@@ -153,6 +154,14 @@ class PemangkuController extends Controller
         } catch (Throwable $th){
             DB::rollback();
             return redirect()->back()->with(['error'=>'Gagal Menambah Data Pemangku : '.$th->getMessage()])->withErrors($request->all());
+        }
+    }
+
+    public function export() {
+        try {
+            return Excel::download(new PemangkuExport, 'pemangku_report_'.Session::get('year').'.xlsx');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
         }
     }
 

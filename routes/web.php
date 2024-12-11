@@ -636,6 +636,7 @@ Route::middleware(['auth'])->group(function()use($ctrl){
     Route::resource('jenis-denda',DendaController::class);
     Route::resource('pemangku', PemangkuController::class);
     Route::post('/import_pemangku', [PemangkuController::class, 'import']);
+    Route::get('/export_pemangku', [PemangkuController::class, 'export']);
 
     Route::resource('verified', VerifiedController::class);
 

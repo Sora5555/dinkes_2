@@ -13,7 +13,7 @@ use Maatwebsite\Excel\Events\AfterSheet;
 use Illuminate\Support\Facades\Auth;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 
-class SubKegiatanExport implements FromCollection, WithHeadings, WithEvents, WithCustomStartCell
+class PemangkuExport implements FromCollection, WithHeadings, WithEvents, WithCustomStartCell
 {
     /**
     * @return \Illuminate\Support\Collection
@@ -30,53 +30,72 @@ class SubKegiatanExport implements FromCollection, WithHeadings, WithEvents, Wit
             // $desa = Auth::user()->unit_kerja->Desa()->get();
             $unit_kerja = UnitKerja::where('id', Auth::user()->unit_kerja_id)->get();
 
-            $mappedData = $unit_kerja->map(function ($items) {
+            $mappedData = $unit_kerja->map(function ($item) {
                 // dd($items->AhliLabMedik->laki_laki);
-
-                $persen = ( ($items->Posyandu->pratama ?? 0) + ($items->Posyandu->madya ?? 0) + ($items->Posyandu->purnama ?? 0) + ($items->Posyandu->mandiri ?? 0));
                 return [
-                    'unit_kerja' => $items->nama,
-                    'posyandu_pramata' => $items->Posyandu->pratama ?? 0,
-                    'posyandu_pramata_persen' => ( ($items->Posyandu->pratama ?? 0) > 0?number_format((  ($items->Posyandu->pratama ?? 0) / $persen)*100, '2'):0).'%',
-                    'posyandu_madya' => $items->Posyandu->madya ?? 0,
-                    'posyandu_madya_persen' => ( ($items->Posyandu->madya ?? 0)  > 0?number_format(($items->Posyandu->sum('madya')/ $persen)*100, '2'):0)."%",
-                    'posyandu_purnama' => $items->Posyandu->purnama ?? 0,
-                    'posyandu_purnama_persen' => ( ($items->Posyandu->purnama ?? 0) > 0?number_format(($items->Posyandu->sum('purnama')/ $persen)*100, '2'):0)."%",
-                    'posyandu_mandiri' => $items->Posyandu->mandiri ?? 0,
-                    'posyandu_mandiri_persen' => ( ($items->Posyandu->mandiri ?? 0) > 0?number_format(($items->Posyandu->sum('mandiri')/ $persen)*100, '2'):0)."%",
-                    'total' => ($items->Posyandu->pratama ?? 0) + ($items->Posyandu->madya ?? 0) + ($items->Posyandu->purnama ?? 0) + ($items->Posyandu->mandiri ?? 0),
-                    'posyandu_aktif' => $items->Posyandu->aktif ?? 0,
-                    'posyandu_aktif_persen' => ( ($items->Posyandu->aktif ?? 0) > 0 ? number_format(( ($items->Posyandu->aktif) / $persen)*100, '2'): 0)."%",
-                    'posbindu' => ($items->Posyandu->posbindu ?? 0),
+                    'td1' => $item->id,
+                    'td2' => $item->nama,
+                    'td3' => $item->DokterSpesialis->laki_laki ?? 0,
+                    'td4' => $item->DokterSpesialis->perempuan ?? 0,
+                    'td5' => ($item->DokterSpesialis->laki_laki ?? 0) + ($item->DokterSpesialis->laki_laki ?? 0),
+
+                    'td6' => ($item->Dokter->laki_laki ?? 0),
+                    'td7' => ($item->Dokter->perempuan ?? 0),
+                    'td8' => ($item->Dokter->laki_laki ?? 0) + ($item->Dokter->perempuan ?? 0),
+
+                    'td9' => ($item->Dokter->laki_laki ?? 0) + ($item->DokterSpesialis->laki_laki ?? 0),
+                    'td10' => ($item->Dokter->perempuan ?? 0) + ($item->DokterSpesialis->perempuan ?? 0),
+                    'td11' => ($item->Dokter->laki_laki ?? 0) + ($item->Dokter->perempuan ?? 0) + ($item->DokterSpesialis->laki_laki ?? 0) + ($item->DokterSpesialis->perempuan ?? 0),
+
+                    'td12' => ($item->DokterGigi->laki_laki ?? 0),
+                    'td13' => ($item->DokterGigi->perempuan ?? 0),
+                    'td14' => ($item->DokterGigi->laki_laki ?? 0) + ($item->DokterGigi->perempuan ?? 0),
+
+                    'td15' =>$item->DokterGigiSpesialis->laki_laki  ?? 0,
+                    'td16' =>$item->DokterGigiSpesialis->perempuan ?? 0,
+                    'td17' => ($item->DokterGigiSpesialis->laki_laki ?? 0) + ($item->DokterGigiSpesialis->perempuan ?? 0),
+
+                    'td18' => ($item->DokterGigiSpesialis->laki_laki ?? 0) + ($item->DokterGigi->laki_laki ?? 0),
+                    'td19' => ($item->DokterGigiSpesialis->perempuan ?? 0) + ($item->DokterGigi->perempuan ?? 0),
+                    'td20' => ($item->DokterGigiSpesialis->laki_laki ?? 0) + ($item->DokterGigiSpesialis->perempuan ?? 0) + ($item->DokterGigi->laki_laki ?? 0) + ($item->DokterGigi->perempuan ?? 0),
                 ];
-            })->toArray();
+            });
 
             return collect($mappedData);
 
         } else {
             $unit_kerja = UnitKerja::get();
-            $mappedData = [];
 
-            $mappedData = $unit_kerja->map(function ($items) {
+            $mappedData = $unit_kerja->map(function ($item) {
                 // dd($items->AhliLabMedik->laki_laki);
-
-                $persen = ( ($items->Posyandu->pratama ?? 0) + ($items->Posyandu->madya ?? 0) + ($items->Posyandu->purnama ?? 0) + ($items->Posyandu->mandiri ?? 0));
                 return [
-                    'unit_kerja' => $items->nama,
-                    'posyandu_pramata' => $items->Posyandu->pratama ?? 0,
-                    'posyandu_pramata_persen' => ( ($items->Posyandu->pratama ?? 0) > 0?number_format((  ($items->Posyandu->pratama ?? 0) / $persen)*100, '2'):0).'%',
-                    'posyandu_madya' => $items->Posyandu->madya ?? 0,
-                    'posyandu_madya_persen' => ( ($items->Posyandu->madya ?? 0)  > 0?number_format(($items->Posyandu->sum('madya')/ $persen)*100, '2'):0)."%",
-                    'posyandu_purnama' => $items->Posyandu->purnama ?? 0,
-                    'posyandu_purnama_persen' => ( ($items->Posyandu->purnama ?? 0) > 0?number_format(($items->Posyandu->sum('purnama')/ $persen)*100, '2'):0)."%",
-                    'posyandu_mandiri' => $items->Posyandu->mandiri ?? 0,
-                    'posyandu_mandiri_persen' => ( ($items->Posyandu->mandiri ?? 0) > 0?number_format(($items->Posyandu->sum('mandiri')/ $persen)*100, '2'):0)."%",
-                    'total' => ($items->Posyandu->pratama ?? 0) + ($items->Posyandu->madya ?? 0) + ($items->Posyandu->purnama ?? 0) + ($items->Posyandu->mandiri ?? 0),
-                    'posyandu_aktif' => $items->Posyandu->aktif ?? 0,
-                    'posyandu_aktif_persen' => ( ($items->Posyandu->aktif ?? 0) > 0 ? number_format(( ($items->Posyandu->aktif) / $persen)*100, '2'): 0)."%",
-                    'posbindu' => ($items->Posyandu->posbindu ?? 0),
+                    'td1' => $item->id,
+                    'td2' => $item->nama,
+                    'td3' => $item->DokterSpesialis->laki_laki ?? 0,
+                    'td4' => $item->DokterSpesialis->perempuan ?? 0,
+                    'td5' => ($item->DokterSpesialis->laki_laki ?? 0) + ($item->DokterSpesialis->laki_laki ?? 0),
+
+                    'td6' => ($item->Dokter->laki_laki ?? 0),
+                    'td7' => ($item->Dokter->perempuan ?? 0),
+                    'td8' => ($item->Dokter->laki_laki ?? 0) + ($item->Dokter->perempuan ?? 0),
+
+                    'td9' => ($item->Dokter->laki_laki ?? 0) + ($item->DokterSpesialis->laki_laki ?? 0),
+                    'td10' => ($item->Dokter->perempuan ?? 0) + ($item->DokterSpesialis->perempuan ?? 0),
+                    'td11' => ($item->Dokter->laki_laki ?? 0) + ($item->Dokter->perempuan ?? 0) + ($item->DokterSpesialis->laki_laki ?? 0) + ($item->DokterSpesialis->perempuan ?? 0),
+
+                    'td12' => ($item->DokterGigi->laki_laki ?? 0),
+                    'td13' => ($item->DokterGigi->perempuan ?? 0),
+                    'td14' => ($item->DokterGigi->laki_laki ?? 0) + ($item->DokterGigi->perempuan ?? 0),
+
+                    'td15' =>$item->DokterGigiSpesialis->laki_laki  ?? 0,
+                    'td16' =>$item->DokterGigiSpesialis->perempuan ?? 0,
+                    'td17' => ($item->DokterGigiSpesialis->laki_laki ?? 0) + ($item->DokterGigiSpesialis->perempuan ?? 0),
+
+                    'td18' => ($item->DokterGigiSpesialis->laki_laki ?? 0) + ($item->DokterGigi->laki_laki ?? 0),
+                    'td19' => ($item->DokterGigiSpesialis->perempuan ?? 0) + ($item->DokterGigi->perempuan ?? 0),
+                    'td20' => ($item->DokterGigiSpesialis->laki_laki ?? 0) + ($item->DokterGigiSpesialis->perempuan ?? 0) + ($item->DokterGigi->laki_laki ?? 0) + ($item->DokterGigi->perempuan ?? 0),
                 ];
-            })->toArray();
+            });
 
             return collect($mappedData);
         }
@@ -87,9 +106,8 @@ class SubKegiatanExport implements FromCollection, WithHeadings, WithEvents, Wit
             ['CAKUPAN PELAYANAN KESEHATAN PADA IBU HAMIL, IBU BERSALIN, DAN IBU NIFAS MENURUT KECAMATAN DAN PUSKESMAS'],  // Main Title
             ['KABUPATEN/KOTA KUTAI TIMUR'],  // Main Title
             ['TAHUN '.Session::get('year')],  // Main Title
-            ['Puskesmas', 'Strata Posyandu', '', '', '', '', '', '', '', '', 'Posyandu Aktif','' ,'Jumlah Posbindu PTM'],
-            ['', 'Pratama', '', 'Madya', '', 'Purnama', '', 'Mandiri', '', 'Total', '', '', ''],
-            ['', 'Jumlah', '%', 'Jumlah', '%', 'Jumlah', '%', 'Jumlah', '%', '', 'Jumlah', '%', ''],
+            ['No', 'Unit Kerja / Desa', 'Dr. Spesialis', '', '', 'Dokter', '', '', 'Total', '', '', 'Dokter Gigi', '', '', 'Dokter Gigi Spesialis', '', '', 'Total', '', ''],
+            ['', '', 'L', 'P', 'L + P', 'L', 'P', 'L + P', 'L', 'P', 'L + P', 'L', 'P', 'L + P', 'L', 'P', 'L + P', 'L', 'P', 'L + P']
         ];
     }
 
@@ -106,29 +124,21 @@ public function registerEvents(): array
 
             // Merge the main title across the entire row
 
-            $sheet->mergeCells('A1:M1'); // Shifted from 'A1:W1' to 'A3:W3' (two extra rows)
-            $sheet->mergeCells('A2:M2'); // Shifted from 'A1:W1' to 'A3:W3' (two extra rows)
-            $sheet->mergeCells('A3:M3'); // Shifted from 'A1:W1' to 'A3:W3' (two extra rows)
+            $sheet->mergeCells('A1:T1'); // Shifted from 'A1:W1' to 'A3:W3' (two extra rows)
+            $sheet->mergeCells('A2:T2'); // Shifted from 'A1:W1' to 'A3:W3' (two extra rows)
+            $sheet->mergeCells('A3:T3'); // Shifted from 'A1:W1' to 'A3:W3' (two extra rows)
 
-            // // Merge main header sections
-            $sheet->mergeCells('A4:A6');
-            $sheet->mergeCells('B4:J4');
-            $sheet->mergeCells('K4:L5');
-            $sheet->mergeCells('M4:M6');
-
-            $sheet->mergeCells('B5:C5');
-            $sheet->mergeCells('D5:E5');
-            $sheet->mergeCells('F5:G5');
-            $sheet->mergeCells('H5:I5');
-
+            // Merge main header sections
+            $sheet->mergeCells('A4:A5');
+            $sheet->mergeCells('B4:B5');
+            $sheet->mergeCells('C4:E4');
+            $sheet->mergeCells('F4:H4');
+            $sheet->mergeCells('I4:K4');
+            $sheet->mergeCells('L4:N4');
+            $sheet->mergeCells('O4:Q4');
+            $sheet->mergeCells('R4:T4');
 
 
-
-            // $sheet->mergeCells('F4:H4');
-            // $sheet->mergeCells('I4:K4');
-            // $sheet->mergeCells('L4:N4');
-            // $sheet->mergeCells('I4:K4');
-            // $sheet->mergeCells('L4:K4');
 
 
 
@@ -181,7 +191,7 @@ public function registerEvents(): array
             // $sheet->setCellValue('W6', '%');
 
             // Apply styles
-            $sheet->getStyle('A1:M5')->applyFromArray([
+            $sheet->getStyle('A1:T5')->applyFromArray([
                 'font' => ['bold' => true],
                 'alignment' => [
                     'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
@@ -193,7 +203,7 @@ public function registerEvents(): array
             $sheet->mergeCells("A{$lastRow}:B{$lastRow}");
 
             // Define the full range dynamically
-            $range = 'A4:M' . $lastRow;
+            $range = 'A4:T' . $lastRow;
             $sheet->getStyle($range)->applyFromArray([
                 'borders' => [
                     'vertical' => [ // Applies to the outer border of the entire range
@@ -207,7 +217,7 @@ public function registerEvents(): array
 
                 ],
             ]);
-            $sheet->getStyle("A{$lastRow}:M{$lastRow}")->applyFromArray([
+            $sheet->getStyle("A{$lastRow}:T{$lastRow}")->applyFromArray([
                 'borders' => [
                     'top' => [
                         'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
@@ -215,7 +225,7 @@ public function registerEvents(): array
                     ],
                 ],
             ]);
-            $sheet->getStyle('A4:M5')->applyFromArray([
+            $sheet->getStyle('A4:T5')->applyFromArray([
                'borders' => [
                     'bottom' => [
                         'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
@@ -223,7 +233,7 @@ public function registerEvents(): array
                     ],
                 ],
             ]);
-            $sheet->getStyle('A5:M5')->applyFromArray([
+            $sheet->getStyle('A5:T5')->applyFromArray([
                'borders' => [
                     'bottom' => [
                         'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
@@ -231,7 +241,7 @@ public function registerEvents(): array
                     ],
                 ],
             ]);
-            $sheet->getStyle('A4:M4')->applyFromArray([
+            $sheet->getStyle('A4:T4')->applyFromArray([
                'borders' => [
                     'top' => [
                         'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THICK,
@@ -250,7 +260,7 @@ public function registerEvents(): array
             $sheet->getColumnDimension('C')->setWidth(15);
             $sheet->getColumnDimension('D')->setWidth(15);
             $sheet->getColumnDimension('E')->setWidth(15);
-            $sheet->getColumnDimension('F')->setWidth(15);
+            $sheet->getColumnDimension('F')->setWidth(40);
             $sheet->getColumnDimension('J')->setWidth(15);
             $sheet->getColumnDimension('K')->setWidth(15);
             $sheet->getColumnDimension('P')->setWidth(15);

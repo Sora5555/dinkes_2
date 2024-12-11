@@ -46,7 +46,7 @@
                         </div>
                     </div>
                     <div class="table-responsive">
-                        <form action="{{url('import_Vaksin')}}" method="post" enctype="multipart/form-data">
+                        {{-- <form action="{{url('import_Vaksin')}}" method="post" enctype="multipart/form-data">
                             @csrf
                             <div class="row">
                                 <div class="col-10">
@@ -59,7 +59,32 @@
                                     <a href="{{url("/export_Vaksin")}}" class="btn btn-primary">Export</a>
                                 </div>
                             </div>
-                        </form>
+                        </form> --}}
+                        <div class="row justify-content-start mb-2">
+                            <div class="col-md-10 d-flex justify-content-around gap-3">
+                                @if(Auth::user()->downloadFile('Vaksin', Session::get('year')))
+                                <form action="/upload/general" method="post" class="d-flex gap-5" enctype="multipart/form-data">
+                                    @csrf
+                                    <input type="hidden" name="name" value="Vaksin" id="">
+                                    <input type="file" name="file_upload" id="" {{Auth::user()->downloadFile('Vaksin', Session::get('year'))->status == 1 ?"disabled":""}} class="form-control" placeholder="upload PDF file">
+                                    <button type="submit" class="btn btn-success" {{Auth::user()->downloadFile('Vaksin', Session::get('year'))->status == 1?"disabled":""}}>Upload</button>
+
+                                </form>
+                                @else
+                                <form action="/upload/general" method="post" class="d-flex gap-5" enctype="multipart/form-data">
+                                    @csrf
+                                    <input type="hidden" name="name" value="Vaksin" id="">
+                                    <input type="file" name="file_upload" id="" class="form-control" placeholder="upload PDF file">
+                                    <button type="submit" class="btn btn-success">Upload</button>
+
+                                </form>
+                                @endif
+                                @if(Auth::user()->hasFile('Vaksin', Session::get('year')) && Auth::user()->downloadFile('Vaksin', Session::get('year'))->file_name != "-")
+                                    <a type="button" class="btn btn-warning" href="{{ Auth::user()->downloadFile('Vaksin', Session::get('year'))->file_path.Auth::user()->downloadFile('Vaksin', Session::get('year'))->file_name }}" download="" ><i class="mdi mdi-note"></i>Download pdf file</a>
+                                @endif
+                                {{-- <a type="button" class="btn btn-warning" href="{{ route('ImdAsi.excel') }}" ><i class="mdi mdi-note"></i>Report</a> --}}
+                            </div>
+                        </div>
                         <table id="data" class="table table-bordered dt-responsive" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                             <thead class="text-center">
                             <tr>

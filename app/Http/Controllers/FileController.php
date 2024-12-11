@@ -135,7 +135,7 @@ public function upload(Request $request){
     $user = Auth::user();
     if(!$user->hasFile($request->name, Session::get('year'))){
         $file=$request->file('file_upload');
-        $direktori=public_path().'/storage/image/';          
+        $direktori=public_path().'/storage/image/';
         $nama_file=str_replace(' ','-',$request->file_upload->getClientOriginalName());
         $file_format= $request->file_upload->getClientOriginalExtension();
         $uploadSuccess = $request->file_upload->move($direktori,$nama_file);
@@ -152,7 +152,7 @@ public function upload(Request $request){
         $old_file = $user->downloadFile($request->name, Session::get('year'));
         $file=$request->file('file_upload');
         $direktori=public_path().'/storage/image/';
-        File::delete($direktori.$old_file->file_name);          
+        File::delete($direktori.$old_file->file_name);
         $nama_file=str_replace(' ','-',$request->file_upload->getClientOriginalName());
         $file_format= $request->file_upload->getClientOriginalExtension();
         $uploadSuccess = $request->file_upload->move($direktori,$nama_file);
@@ -169,7 +169,7 @@ public function apiLockUpload(Request $request){
 
     $user = User::where('id', $request->id)->first();
     $name = $request->input('name');
-    $fileUpload = $user->downloadFile($name, Session::get('year'));    
+    $fileUpload = $user->downloadFile($name, Session::get('year'));
     if(isset($fileUpload)){
         $fileUpload->update([
             'status' => $request->status,
@@ -192,8 +192,8 @@ public function apiLockUpload(Request $request){
 }
 public function lock(Request $request){
 
-    $unitKerja = UnitKerja::where('id', $request->id)->first();    
-    $unitKerja->GeneralLock(Session::get('year'), $request->status, $request->input('name'));   
+    $unitKerja = UnitKerja::where('id', $request->id)->first();
+    $unitKerja->GeneralLock(Session::get('year'), $request->status, $request->input('name'));
 
     return response()->json([
         'status' => 'success',
@@ -202,8 +202,8 @@ public function lock(Request $request){
 }
 public function lock2(Request $request){
 
-    $unitKerja = UnitKerja::where('id', $request->id)->first();    
-    $unitKerja->GeneralLock2(Session::get('year'), $request->status, $request->input('name'));   
+    $unitKerja = UnitKerja::where('id', $request->id)->first();
+    $unitKerja->GeneralLock2(Session::get('year'), $request->status, $request->input('name'));
 
     return response()->json([
         'status' => 'success',

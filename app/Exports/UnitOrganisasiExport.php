@@ -20,7 +20,7 @@ class UnitOrganisasiExport implements FromCollection, WithHeadings, WithEvents, 
     */
 
     /**
-     * Return a collection of the data to be exported.
+     * Return a collection of the data to be exported.s
      */
     public function collection()
     {
@@ -28,28 +28,49 @@ class UnitOrganisasiExport implements FromCollection, WithHeadings, WithEvents, 
         // Fetch the data you want to export
         if(Auth::user()->roles->first()->name !== "Admin"){
             // $desa = Auth::user()->unit_kerja->Desa()->get();
-            $unit_kerja = UnitKerja::where('id', Auth::user()->unit_kerja_id)->whereYear('created_at', Session::get('year'))->get();
+            $unit_kerja = UnitKerja::where('id', Auth::user()->unit_kerja_id)->get();
             // $totals = [
-                $mappedData = $unit_kerja->flatMap(function ($item) {
-                    // Data unit kerja sebagai header
-                    $unitKerjaRow = [
-                        'no' => $item->id,
-                        'unit_kerja' => $item->nama,
-                        'tenaga_kesehatan_masyarakat_l' => $item->TenagaKesehatanMasyarakat->sum("laki_laki"),
-                        'tenaga_kesehatan_masyarakat_p' => $item->TenagaKesehatanMasyarakat->sum("perempuan"),
-                        'tenaga_kesehatan_masyarakat_lp' => $item->TenagaKesehatanMasyarakat->sum("laki_laki") + $item->TenagaKesehatanMasyarakat->sum("perempuan"),
-                        'tenaga_kesehatan_lingkungan_l' => $item->TenagaKesehatanLingkungan->sum("laki_laki"),
-                        'tenaga_kesehatan_lingkungan_p' => $item->TenagaKesehatanLingkungan->sum("perempuan"),
-                        'tenaga_kesehatan_lingkungan_lp' => $item->TenagaKesehatanLingkungan->sum("laki_laki") + $item->TenagaKesehatanLingkungan->sum("perempuan"),
-                        'tenaga_gizi_l' => $item->TenagaGizi->sum("laki_laki"),
-                        'tenaga_gizi_p' => $item->TenagaGizi->sum("perempuan"),
-                        'tenaga_gizi_lp' => $item->TenagaGizi->sum("laki_laki") + $item->TenagaGizi->sum("perempuan"),
-                    ];
+                // $mappedData = $unit_kerja->flatMap(function ($item) {
+                //     // Data unit kerja sebagai header
+                //     $unitKerjaRow = [
+                //         'no' => $item->id,
+                //         'unit_kerja' => $item->nama,
+                //         'tenaga_kesehatan_masyarakat_l' => $item->TenagaKesehatanMasyarakat->sum("laki_laki"),
+                //         'tenaga_kesehatan_masyarakat_p' => $item->TenagaKesehatanMasyarakat->sum("perempuan"),
+                //         'tenaga_kesehatan_masyarakat_lp' => $item->TenagaKesehatanMasyarakat->sum("laki_laki") + $item->TenagaKesehatanMasyarakat->sum("perempuan"),
+                //         'tenaga_kesehatan_lingkungan_l' => $item->TenagaKesehatanLingkungan->sum("laki_laki"),
+                //         'tenaga_kesehatan_lingkungan_p' => $item->TenagaKesehatanLingkungan->sum("perempuan"),
+                //         'tenaga_kesehatan_lingkungan_lp' => $item->TenagaKesehatanLingkungan->sum("laki_laki") + $item->TenagaKesehatanLingkungan->sum("perempuan"),
+                //         'tenaga_gizi_l' => $item->TenagaGizi->sum("laki_laki"),
+                //         'tenaga_gizi_p' => $item->TenagaGizi->sum("perempuan"),
+                //         'tenaga_gizi_lp' => $item->TenagaGizi->sum("laki_laki") + $item->TenagaGizi->sum("perempuan"),
+                //     ];
 
-                    $employeeRows = $item->detail_desa->map(function ($items) {
-                        // dd($items->AhliLabMedik->laki_laki);
-                        return [
-                            'no' => '-',
+                //     $employeeRows = $item->detail_desa->map(function ($items) {
+                //         // dd($items->AhliLabMedik->laki_laki);
+                //         return [
+                //             'no' => '-',
+                //             'unit_kerja' => $items->nama,
+                //             'tenaga_kesehatan_masyarakat_l' => $items->TenagaKesehatanMasyarakat->laki_laki ?? 0,
+                //             'tenaga_kesehatan_masyarakat_p' => $items->TenagaKesehatanMasyarakat->perempuan ?? 0,
+                //             'tenaga_kesehatan_masyarakat_lp' => ($items->TenagaKesehatanMasyarakat->laki_laki ?? 0) + ($items->TenagaKesehatanMasyarakat->perempuan ?? 0),
+                //             'tenaga_kesehatan_lingkungan_l' => $items->TenagaKesehatanLingkungan->laki_laki ?? 0,
+                //             'tenaga_kesehatan_lingkungan_p' => $items->TenagaKesehatanLingkungan->perempuan ?? 0,
+                //             'tenaga_kesehatan_lingkungan_lp' => ($items->TenagaKesehatanLingkungan->laki_laki ?? 0) + ($items->TenagaKesehatanLingkungan->perempuan ?? 0),
+                //             'tenaga_gizi_l' => $items->TenagaGizi->laki_laki ?? 0,
+                //             'tenaga_gizi_p' => $items->TenagaGizi->perempuan ?? 0,
+                //             'tenaga_gizi_lp' => ($items->TenagaGizi->laki_laki ?? 0) + ($items->TenagaGizi->perempuan ?? 0),
+                //         ];
+                //     });
+
+                //     // Gabungkan header unit kerja dan employees
+                //     return collect([$unitKerjaRow])->concat($employeeRows);
+                //     // return collect([$unitKerjaRow]);
+                // })->toArray();
+
+                $mappedData = $unit_kerja->map(function ($items) {
+                    return [
+                            'no' => $items->id,
                             'unit_kerja' => $items->nama,
                             'tenaga_kesehatan_masyarakat_l' => $items->TenagaKesehatanMasyarakat->laki_laki ?? 0,
                             'tenaga_kesehatan_masyarakat_p' => $items->TenagaKesehatanMasyarakat->perempuan ?? 0,
@@ -60,17 +81,12 @@ class UnitOrganisasiExport implements FromCollection, WithHeadings, WithEvents, 
                             'tenaga_gizi_l' => $items->TenagaGizi->laki_laki ?? 0,
                             'tenaga_gizi_p' => $items->TenagaGizi->perempuan ?? 0,
                             'tenaga_gizi_lp' => ($items->TenagaGizi->laki_laki ?? 0) + ($items->TenagaGizi->perempuan ?? 0),
-                        ];
-                    });
-
-                    // Gabungkan header unit kerja dan employees
-                    return collect([$unitKerjaRow])->concat($employeeRows);
-                    // return collect([$unitKerjaRow]);
+                    ];
                 })->toArray();
 
                 return collect($mappedData);
         } else {
-            $unit_kerja = UnitKerja::whereYear('created_at', Session::get('year'))->get();
+            $unit_kerja = UnitKerja::get();
 
             // $unitKerja = UnitKerja::all();
 
@@ -130,26 +146,47 @@ class UnitOrganisasiExport implements FromCollection, WithHeadings, WithEvents, 
 
             // dd($unit_kerja);
 
-            $mappedData = $unit_kerja->flatMap(function ($item) {
-                // Data unit kerja sebagai header
-                $unitKerjaRow = [
-                    'no' => $item->id,
-                    'unit_kerja' => $item->nama,
-                    'tenaga_kesehatan_masyarakat_l' => $item->TenagaKesehatanMasyarakat->sum("laki_laki"),
-                    'tenaga_kesehatan_masyarakat_p' => $item->TenagaKesehatanMasyarakat->sum("perempuan"),
-                    'tenaga_kesehatan_masyarakat_lp' => $item->TenagaKesehatanMasyarakat->sum("laki_laki") + $item->TenagaKesehatanMasyarakat->sum("perempuan"),
-                    'tenaga_kesehatan_lingkungan_l' => $item->TenagaKesehatanLingkungan->sum("laki_laki"),
-                    'tenaga_kesehatan_lingkungan_p' => $item->TenagaKesehatanLingkungan->sum("perempuan"),
-                    'tenaga_kesehatan_lingkungan_lp' => $item->TenagaKesehatanLingkungan->sum("laki_laki") + $item->TenagaKesehatanLingkungan->sum("perempuan"),
-                    'tenaga_gizi_l' => $item->TenagaGizi->sum("laki_laki"),
-                    'tenaga_gizi_p' => $item->TenagaGizi->sum("perempuan"),
-                    'tenaga_gizi_lp' => $item->TenagaGizi->sum("laki_laki") + $item->TenagaGizi->sum("perempuan"),
-                ];
+            // $mappedData = $unit_kerja->flatMap(function ($item) {
+            //     // Data unit kerja sebagai header
+            //     $unitKerjaRow = [
+            //         'no' => $item->id,
+            //         'unit_kerja' => $item->nama,
+            //         'tenaga_kesehatan_masyarakat_l' => $item->TenagaKesehatanMasyarakat->sum("laki_laki"),
+            //         'tenaga_kesehatan_masyarakat_p' => $item->TenagaKesehatanMasyarakat->sum("perempuan"),
+            //         'tenaga_kesehatan_masyarakat_lp' => $item->TenagaKesehatanMasyarakat->sum("laki_laki") + $item->TenagaKesehatanMasyarakat->sum("perempuan"),
+            //         'tenaga_kesehatan_lingkungan_l' => $item->TenagaKesehatanLingkungan->sum("laki_laki"),
+            //         'tenaga_kesehatan_lingkungan_p' => $item->TenagaKesehatanLingkungan->sum("perempuan"),
+            //         'tenaga_kesehatan_lingkungan_lp' => $item->TenagaKesehatanLingkungan->sum("laki_laki") + $item->TenagaKesehatanLingkungan->sum("perempuan"),
+            //         'tenaga_gizi_l' => $item->TenagaGizi->sum("laki_laki"),
+            //         'tenaga_gizi_p' => $item->TenagaGizi->sum("perempuan"),
+            //         'tenaga_gizi_lp' => $item->TenagaGizi->sum("laki_laki") + $item->TenagaGizi->sum("perempuan"),
+            //     ];
 
-                $employeeRows = $item->detail_desa->map(function ($items) {
-                    // dd($items->AhliLabMedik->laki_laki);
-                    return [
-                        'no' => '-',
+            //     $employeeRows = $item->detail_desa->map(function ($items) {
+            //         // dd($items->AhliLabMedik->laki_laki);
+            //         return [
+            //             'no' => '-',
+            //             'unit_kerja' => $items->nama,
+            //             'tenaga_kesehatan_masyarakat_l' => $items->TenagaKesehatanMasyarakat->laki_laki ?? 0,
+            //             'tenaga_kesehatan_masyarakat_p' => $items->TenagaKesehatanMasyarakat->perempuan ?? 0,
+            //             'tenaga_kesehatan_masyarakat_lp' => ($items->TenagaKesehatanMasyarakat->laki_laki ?? 0) + ($items->TenagaKesehatanMasyarakat->perempuan ?? 0),
+            //             'tenaga_kesehatan_lingkungan_l' => $items->TenagaKesehatanLingkungan->laki_laki ?? 0,
+            //             'tenaga_kesehatan_lingkungan_p' => $items->TenagaKesehatanLingkungan->perempuan ?? 0,
+            //             'tenaga_kesehatan_lingkungan_lp' => ($items->TenagaKesehatanLingkungan->laki_laki ?? 0) + ($items->TenagaKesehatanLingkungan->perempuan ?? 0),
+            //             'tenaga_gizi_l' => $items->TenagaGizi->laki_laki ?? 0,
+            //             'tenaga_gizi_p' => $items->TenagaGizi->perempuan ?? 0,
+            //             'tenaga_gizi_lp' => ($items->TenagaGizi->laki_laki ?? 0) + ($items->TenagaGizi->perempuan ?? 0),
+            //         ];
+            //     });
+
+            //     // Gabungkan header unit kerja dan employees
+            //     return collect([$unitKerjaRow])->concat($employeeRows);
+            //     // return collect([$unitKerjaRow]);
+            // })->toArray();
+
+            $mappedData = $unit_kerja->map(function ($items) {
+                return [
+                        'no' => $items->id,
                         'unit_kerja' => $items->nama,
                         'tenaga_kesehatan_masyarakat_l' => $items->TenagaKesehatanMasyarakat->laki_laki ?? 0,
                         'tenaga_kesehatan_masyarakat_p' => $items->TenagaKesehatanMasyarakat->perempuan ?? 0,
@@ -160,12 +197,7 @@ class UnitOrganisasiExport implements FromCollection, WithHeadings, WithEvents, 
                         'tenaga_gizi_l' => $items->TenagaGizi->laki_laki ?? 0,
                         'tenaga_gizi_p' => $items->TenagaGizi->perempuan ?? 0,
                         'tenaga_gizi_lp' => ($items->TenagaGizi->laki_laki ?? 0) + ($items->TenagaGizi->perempuan ?? 0),
-                    ];
-                });
-
-                // Gabungkan header unit kerja dan employees
-                return collect([$unitKerjaRow])->concat($employeeRows);
-                // return collect([$unitKerjaRow]);
+                ];
             })->toArray();
 
             return collect($mappedData);
@@ -266,7 +298,7 @@ public function registerEvents(): array
                 ],
 
             ]);
-            $lastRow = $sheet->getHighestRow();
+            $lastRow = $sheet->getHighestRow() + 1;
             $sheet->mergeCells("A{$lastRow}:B{$lastRow}");
 
             // Define the full range dynamically

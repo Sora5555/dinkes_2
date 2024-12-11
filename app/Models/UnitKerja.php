@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Session;
 
 class UnitKerja extends Model
 {
@@ -21,62 +22,93 @@ class UnitKerja extends Model
         return $this->hasOne(ObatEsensial::class);
     }
     public function DokterSpesialis(){
-        return $this->hasMany(DokterSpesialis::class);
+        // return $this->hasMany(DokterSpesialis::class);
+        return $this->hasOne(DokterSpesialis::class)
+        ->whereYear('created_at', Session::get('year'));
     }
     public function Dokter(){
-        return $this->hasMany(Dokter::class);
+        // return $this->hasMany(Dokter::class);
+        return $this->hasOne(Dokter::class)
+        ->whereYear('created_at', Session::get('year'));
     }
     public function DokterGigi(){
-        return $this->hasMany(DokterGigi::class);
+        // return $this->hasMany(DokterGigi::class);
+        return $this->hasOne(DokterGigi::class)
+        ->whereYear('created_at', Session::get('year'));
     }
     public function DokterGigiSpesialis(){
-        return $this->hasMany(DokterGigiSpesialis::class);
+        // return $this->hasMany(DokterGigiSpesialis::class);
+        return $this->hasOne(DokterGigiSpesialis::class)
+        ->whereYear('created_at', Session::get('year'));
     }
     public function Perawat(){
-        return $this->hasMany(Perawat::class);
+        // return $this->hasMany(Perawat::class);
+        return $this->hasOne(Perawat::class)
+        ->whereYear('created_at', Session::get('year'));
     }
     public function Bidan(){
-        return $this->hasMany(Bidan::class);
+        // return $this->hasMany(Bidan::class);
+        return $this->hasOne(Bidan::class)
+        ->whereYear('created_at', Session::get('year'));
     }
     public function TenagaKesehatanMasyarakat(){
-        return $this->hasMany(TenagaKesehatanMasyarakat::class);
+        return $this->hasOne(TenagaKesehatanMasyarakat::class)
+                    ->whereYear('created_at', Session::get('year'));
     }
     public function TenagaKesehatanLingkungan(){
-        return $this->hasMany(TenagaKesehatanLingkungan::class);
+        return $this->hasOne(TenagaKesehatanLingkungan::class)
+                    ->whereYear('created_at', Session::get('year'));
     }
     public function TenagaGizi(){
-        return $this->hasMany(TenagaGizi::class);
+        return $this->hasOne(TenagaGizi::class)
+                    ->whereYear('created_at', Session::get('year'));
     }
     public function AhliLabMedik(){
-        return $this->hasMany(AhliLabMedik::class);
+        return $this->hasOne(AhliLabMedik::class, 'unit_kerja_id', 'id')
+                    ->whereYear('created_at', Session::get('year'));
     }
 
     public function TenagaTeknikBiomedik(){
-        return $this->hasMany(TenagaTeknikBiomedik::class);
+        return $this->hasOne(TenagaTeknikBiomedik::class)
+                    ->whereYear('created_at', Session::get('year'));
     }
     public function TenagaTeknikFarmasi(){
-        return $this->hasMany(TenagaTeknisFarmasi::class);
+        // return $this->hasMany(TenagaTeknisFarmasi::class);
+        return $this->hasOne(TenagaTeknisFarmasi::class)
+        ->whereYear('created_at', Session::get('year'));
     }
     public function TerapiFisik(){
-        return $this->hasMany(TerapiFisik::class);
+        return $this->hasOne(TerapiFisik::class)
+                    ->whereYear('created_at', Session::get('year'));
     }
     public function KeteknisanMedik(){
-        return $this->hasMany(KeteknisanMedik::class);
+        return $this->hasOne(KeteknisanMedik::class)
+                    ->whereYear('created_at', Session::get('year'));
     }
     public function Apoteker(){
-        return $this->hasMany(Apoteker::class);
+        // return $this->hasMany(Apoteker::class);
+        return $this->hasOne(Apoteker::class)
+                    ->whereYear('created_at', Session::get('year'));
     }
     public function PejabatStruktural(){
-        return $this->hasMany(PejabatStruktural::class);
+        // return $this->hasMany(PejabatStruktural::class);
+        return $this->hasOne(PejabatStruktural::class)
+        ->whereYear('created_at', Session::get('year'));
     }
     public function TenagaPendidik(){
-        return $this->hasMany(TenagaPendidik::class);
+        // return $this->hasMany(TenagaPendidik::class);
+        return $this->hasOne(TenagaPendidik::class)
+        ->whereYear('created_at', Session::get('year'));
     }
     public function Manajemen(){
-        return $this->hasMany(Manajemen::class);
+        // return $this->hasMany(Manajemen::class);
+        return $this->hasOne(Manajemen::class)
+        ->whereYear('created_at', Session::get('year'));
     }
     public function Posyandu(){
-        return $this->hasMany(Posyandu::class);
+        // return $this->hasMany(Posyandu::class);
+        return $this->hasOne(Posyandu::class)
+        ->whereYear('created_at', Session::get('year'));
     }
     public function desa(){
         return $this->hasMany(Desa::class);

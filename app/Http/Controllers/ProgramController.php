@@ -40,9 +40,9 @@ class ProgramController extends Controller
         if(Auth::user()->roles->first()->name !== "Admin"){
             $induk_opd_arr = IndukOpd::where('id', Auth::user()->induk_opd_id)->pluck('nama', 'id');
         }
-        $unit_kerja = UnitKerja::where('id', Auth::user()->unit_kerja_id)->whereYear('created_at', Session::get('year'))->get();
+        $unit_kerja = UnitKerja::where('id', Auth::user()->unit_kerja_id)->get();
         if(Auth::user()->roles->first()->name == "Admin"){
-            $unit_kerja = UnitKerja::whereYear('created_at', Session::get('year'))->get();
+            $unit_kerja = UnitKerja::get();
         }
         return view('program.index',compact('route','title', 'induk_opd_arr', 'unit_kerja'));
 

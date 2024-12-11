@@ -28,68 +28,92 @@ class JabatanExport implements FromCollection, WithHeadings, WithEvents, WithCus
         // Fetch the data you want to export
         if(Auth::user()->roles->first()->name !== "Admin"){
             // $desa = Auth::user()->unit_kerja->Desa()->get();
-            $unit_kerja = UnitKerja::where('id', Auth::user()->unit_kerja_id)->whereYear('created_at', Session::get('year'))->get();
+            $unit_kerja = UnitKerja::where('id', Auth::user()->unit_kerja_id)->get();
 
-            $mappedData = $unit_kerja->flatMap(function ($item) {
-                // Data unit kerja sebagai header
-                $unitKerjaRow = [
-                    'no' => $item->id,
-                    'unit_kerja' => $item->nama,
-                    'perawat_l' => $item->Perawat->sum("laki_laki"),
-                    'perawat_p' => $item->Perawat->sum("perempuan"),
-                    'perawat_lp' => $item->Perawat->sum("laki_laki") + $item->Perawat->sum("perempuan"),
-                    'tenaga_kebidanan' => $item->Bidan->sum("perempuan"),
+            // $mappedData = $unit_kerja->flatMap(function ($item) {
+            //     // Data unit kerja sebagai header
+            //     $unitKerjaRow = [
+            //         'no' => $item->id,
+            //         'unit_kerja' => $item->nama,
+            //         'perawat_l' => $item->Perawat->sum("laki_laki"),
+            //         'perawat_p' => $item->Perawat->sum("perempuan"),
+            //         'perawat_lp' => $item->Perawat->sum("laki_laki") + $item->Perawat->sum("perempuan"),
+            //         'tenaga_kebidanan' => $item->Bidan->sum("perempuan"),
+            //     ];
+
+            //     $employeeRows = $item->detail_desa->map(function ($items) {
+            //         // dd($items->AhliLabMedik->laki_laki);
+            //         return [
+            //             'no' => '-',
+            //             'unit_kerja' => $items->nama,
+            //             'perawat_l' => $items->Perawat->laki_laki ?? 0,
+            //             'perawat_p' => $items->Perawat->perempuan ?? 0,
+            //             'perawat_lp' => ($items->Perawat->laki_laki ?? 0) + ($items->Perawat->perempuan ?? 0),
+            //             'tenaga_kebidanan' => $items->Bidan->perempuan ?? 0,
+            //         ];
+            //     });
+
+            //     // Gabungkan header unit kerja dan employees
+            //     return collect([$unitKerjaRow])->concat($employeeRows);
+            //     // return collect([$unitKerjaRow]);
+            // })->toArray();
+
+            $mappedData = $unit_kerja->map(function ($items) {
+                // dd($items->AhliLabMedik->laki_laki);
+                return [
+                    'no' => $items->id,
+                    'unit_kerja' => $items->nama,
+                    'perawat_l' => $items->Perawat->laki_laki ?? 0,
+                    'perawat_p' => $items->Perawat->perempuan ?? 0,
+                    'perawat_lp' => ($items->Perawat->laki_laki ?? 0) + ($items->Perawat->perempuan ?? 0),
+                    'tenaga_kebidanan' => $items->Bidan->perempuan ?? 0,
                 ];
-
-                $employeeRows = $item->detail_desa->map(function ($items) {
-                    // dd($items->AhliLabMedik->laki_laki);
-                    return [
-                        'no' => '-',
-                        'unit_kerja' => $items->nama,
-                        'perawat_l' => $items->Perawat->laki_laki ?? 0,
-                        'perawat_p' => $items->Perawat->perempuan ?? 0,
-                        'perawat_lp' => ($items->Perawat->laki_laki ?? 0) + ($items->Perawat->perempuan ?? 0),
-                        'tenaga_kebidanan' => $items->Bidan->perempuan ?? 0,
-                    ];
-                });
-
-                // Gabungkan header unit kerja dan employees
-                return collect([$unitKerjaRow])->concat($employeeRows);
-                // return collect([$unitKerjaRow]);
-            })->toArray();
+            });
 
             return collect($mappedData);
 
         } else {
-            $unit_kerja = UnitKerja::whereYear('created_at', Session::get('year'))->get();
+            $unit_kerja = UnitKerja::get();
 
-            $mappedData = $unit_kerja->flatMap(function ($item) {
-                // Data unit kerja sebagai header
-                $unitKerjaRow = [
-                    'no' => $item->id,
-                    'unit_kerja' => $item->nama,
-                    'perawat_l' => $item->Perawat->sum("laki_laki"),
-                    'perawat_p' => $item->Perawat->sum("perempuan"),
-                    'perawat_lp' => $item->Perawat->sum("laki_laki") + $item->Perawat->sum("perempuan"),
-                    'tenaga_kebidanan' => $item->Bidan->sum("perempuan"),
+            // $mappedData = $unit_kerja->flatMap(function ($item) {
+            //     // Data unit kerja sebagai header
+            //     $unitKerjaRow = [
+            //         'no' => $item->id,
+            //         'unit_kerja' => $item->nama,
+            //         'perawat_l' => $item->Perawat->sum("laki_laki"),
+            //         'perawat_p' => $item->Perawat->sum("perempuan"),
+            //         'perawat_lp' => $item->Perawat->sum("laki_laki") + $item->Perawat->sum("perempuan"),
+            //         'tenaga_kebidanan' => $item->Bidan->sum("perempuan"),
+            //     ];
+
+            //     $employeeRows = $item->detail_desa->map(function ($items) {
+            //         // dd($items->AhliLabMedik->laki_laki);
+            //         return [
+            //             'no' => '-',
+            //             'unit_kerja' => $items->nama,
+            //             'perawat_l' => $items->Perawat->laki_laki ?? 0,
+            //             'perawat_p' => $items->Perawat->perempuan ?? 0,
+            //             'perawat_lp' => ($items->Perawat->laki_laki ?? 0) + ($items->Perawat->perempuan ?? 0),
+            //             'tenaga_kebidanan' => $items->Bidan->perempuan ?? 0,
+            //         ];
+            //     });
+
+            //     // Gabungkan header unit kerja dan employees
+            //     return collect([$unitKerjaRow])->concat($employeeRows);
+            //     // return collect([$unitKerjaRow]);
+            // })->toArray();
+
+            $mappedData = $unit_kerja->map(function ($items) {
+                // dd($items->AhliLabMedik->laki_laki);
+                return [
+                    'no' => $items->id,
+                    'unit_kerja' => $items->nama,
+                    'perawat_l' => $items->Perawat->laki_laki ?? 0,
+                    'perawat_p' => $items->Perawat->perempuan ?? 0,
+                    'perawat_lp' => ($items->Perawat->laki_laki ?? 0) + ($items->Perawat->perempuan ?? 0),
+                    'tenaga_kebidanan' => $items->Bidan->perempuan ?? 0,
                 ];
-
-                $employeeRows = $item->detail_desa->map(function ($items) {
-                    // dd($items->AhliLabMedik->laki_laki);
-                    return [
-                        'no' => '-',
-                        'unit_kerja' => $items->nama,
-                        'perawat_l' => $items->Perawat->laki_laki ?? 0,
-                        'perawat_p' => $items->Perawat->perempuan ?? 0,
-                        'perawat_lp' => ($items->Perawat->laki_laki ?? 0) + ($items->Perawat->perempuan ?? 0),
-                        'tenaga_kebidanan' => $items->Bidan->perempuan ?? 0,
-                    ];
-                });
-
-                // Gabungkan header unit kerja dan employees
-                return collect([$unitKerjaRow])->concat($employeeRows);
-                // return collect([$unitKerjaRow]);
-            })->toArray();
+            });
 
             return collect($mappedData);
         }
@@ -189,7 +213,7 @@ public function registerEvents(): array
                 ],
 
             ]);
-            $lastRow = $sheet->getHighestRow();
+            $lastRow = $sheet->getHighestRow() + 1;
             $sheet->mergeCells("A{$lastRow}:B{$lastRow}");
 
             // Define the full range dynamically
@@ -207,7 +231,7 @@ public function registerEvents(): array
 
                 ],
             ]);
-            $sheet->getStyle("A{$lastRow}:K{$lastRow}")->applyFromArray([
+            $sheet->getStyle("A{$lastRow}:F{$lastRow}")->applyFromArray([
                 'borders' => [
                     'top' => [
                         'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,

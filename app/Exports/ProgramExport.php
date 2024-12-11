@@ -28,95 +28,50 @@ class ProgramExport implements FromCollection, WithHeadings, WithEvents, WithCus
         // Fetch the data you want to export
         if(Auth::user()->roles->first()->name !== "Admin"){
             // $desa = Auth::user()->unit_kerja->Desa()->get();
-            $unit_kerja = UnitKerja::where('id', Auth::user()->unit_kerja_id)->whereYear('created_at', Session::get('year'))->get();
+            $unit_kerja = UnitKerja::where('id', Auth::user()->unit_kerja_id)->get();
 
-            $mappedData = $unit_kerja->flatMap(function ($item) {
-                // Data unit kerja sebagai header
-                $unitKerjaRow = [
-                    'no' => $item->id,
-                    'unit_kerja' => $item->nama,
-                    'tenaga_teknik_farmasi_l' => $item->TenagaTeknikFarmasi->sum("laki_laki"),
-                    'tenaga_teknik_farmasi_p' => $item->TenagaTeknikFarmasi->sum("perempuan"),
-                    'tenaga_teknik_farmasi_lp' => $item->TenagaTeknikFarmasi->sum("laki_laki") + $item->TenagaTeknikFarmasi->sum("perempuan"),
+            $mappedData = $unit_kerja->map(function ($items) {
+                // dd($items->AhliLabMedik->laki_laki);
+                return [
+                    'no' => $items->id,
+                    'unit_kerja' => $items->nama,
+                    'tenaga_teknik_farmasi_l' => $items->TenagaTeknikFarmasi->laki_laki ?? 0,
+                    'tenaga_teknik_farmasi_p' => $items->TenagaTeknikFarmasi->perempuan ?? 0,
+                    'tenaga_teknik_farmasi_lp' => ($items->TenagaTeknikFarmasi->laki_laki ?? 0) + ($items->TenagaTeknikFarmasi->perempuan ?? 0),
 
-                    'apoteker_l' => $item->Apoteker->sum("laki_laki"),
-                    'apoteker_p' => $item->Apoteker->sum("perempuan"),
-                    'apoteker_lp' => $item->Apoteker->sum("laki_laki") + $item->Apoteker->sum("perempuan"),
+                    'apoteker_l' => $items->Apoteker->laki_laki ?? 0,
+                    'apoteker_p' => $items->Apoteker->perempuan ?? 0,
+                    'apoteker_lp' => ($items->Apoteker->laki_laki ?? 0) + ($items->Apoteker->perempuan ?? 0),
 
-                    'at_l' => $item->Apoteker->sum("laki_laki") + $item->TenagaTeknikFarmasi->sum("laki_laki"),
-                    'at_p' => $item->Apoteker->sum("perempuan") + $item->TenagaTeknikFarmasi->sum('perempuan'),
-                    'at_lp' => $item->Apoteker->sum("laki_laki") + $item->Apoteker->sum("perempuan") + $item->TenagaTeknikFarmasi->sum("laki_laki") + $item->TenagaTeknikFarmasi->sum("perempuan"),
+                    'at_l' => ($items->Apoteker->laki_laki ?? 0)+ ($items->TenagaTeknikFarmasi->laki_laki ?? 0),
+                    'at_p' => ($items->Apoteker->perempuan ?? 0) + ($items->TenagaTeknikFarmasi->perempuan ?? 0),
+                    'at_lp' => ($items->Apoteker->laki_laki ?? 0) + ($items->Apoteker->perempuan ?? 0) + ($items->TenagaTeknikFarmasi->laki_laki ?? 0) + ($items->TenagaTeknikFarmasi->perempuan ?? 0),
                 ];
+            });
 
-                $employeeRows = $item->detail_desa->map(function ($items) {
-                    // dd($items->AhliLabMedik->laki_laki);
-                    return [
-                        'no' => '-',
-                        'unit_kerja' => $items->nama,
-                        'tenaga_teknik_farmasi_l' => $items->TenagaTeknikFarmasi->laki_laki ?? 0,
-                        'tenaga_teknik_farmasi_p' => $items->TenagaTeknikFarmasi->perempuan ?? 0,
-                        'tenaga_teknik_farmasi_lp' => ($items->TenagaTeknikFarmasi->laki_laki ?? 0) + ($items->TenagaTeknikFarmasi->perempuan ?? 0),
-
-                        'apoteker_l' => $items->Apoteker->laki_laki ?? 0,
-                        'apoteker_p' => $items->Apoteker->perempuan ?? 0,
-                        'apoteker_lp' => ($items->Apoteker->laki_laki ?? 0) + ($items->Apoteker->perempuan ?? 0),
-
-                        'at_l' => ($items->Apoteker->laki_laki ?? 0)+ ($items->TenagaTeknikFarmasi->laki_laki ?? 0),
-                        'at_p' => ($items->Apoteker->perempuan ?? 0) + ($items->TenagaTeknikFarmasi->perempuan ?? 0),
-                        'at_lp' => ($items->Apoteker->laki_laki ?? 0) + ($items->Apoteker->perempuan ?? 0) + ($items->TenagaTeknikFarmasi->laki_laki ?? 0) + ($items->TenagaTeknikFarmasi->perempuan ?? 0),
-                    ];
-                });
-
-                // Gabungkan header unit kerja dan employees
-                return collect([$unitKerjaRow])->concat($employeeRows);
-                // return collect([$unitKerjaRow]);
-            })->toArray();
             return collect($mappedData);
 
         } else {
-            $unit_kerja = UnitKerja::whereYear('created_at', Session::get('year'))->get();
+            $unit_kerja = UnitKerja::get();
 
-            $mappedData = $unit_kerja->flatMap(function ($item) {
-                // Data unit kerja sebagai header
-                $unitKerjaRow = [
-                    'no' => $item->id,
-                    'unit_kerja' => $item->nama,
-                    'tenaga_teknik_farmasi_l' => $item->TenagaTeknikFarmasi->sum("laki_laki"),
-                    'tenaga_teknik_farmasi_p' => $item->TenagaTeknikFarmasi->sum("perempuan"),
-                    'tenaga_teknik_farmasi_lp' => $item->TenagaTeknikFarmasi->sum("laki_laki") + $item->TenagaTeknikFarmasi->sum("perempuan"),
+            $mappedData = $unit_kerja->map(function ($items) {
+                // dd($items->AhliLabMedik->laki_laki);
+                return [
+                    'no' => $items->id,
+                    'unit_kerja' => $items->nama,
+                    'tenaga_teknik_farmasi_l' => $items->TenagaTeknikFarmasi->laki_laki ?? 0,
+                    'tenaga_teknik_farmasi_p' => $items->TenagaTeknikFarmasi->perempuan ?? 0,
+                    'tenaga_teknik_farmasi_lp' => ($items->TenagaTeknikFarmasi->laki_laki ?? 0) + ($items->TenagaTeknikFarmasi->perempuan ?? 0),
 
-                    'apoteker_l' => $item->Apoteker->sum("laki_laki"),
-                    'apoteker_p' => $item->Apoteker->sum("perempuan"),
-                    'apoteker_lp' => $item->Apoteker->sum("laki_laki") + $item->Apoteker->sum("perempuan"),
+                    'apoteker_l' => $items->Apoteker->laki_laki ?? 0,
+                    'apoteker_p' => $items->Apoteker->perempuan ?? 0,
+                    'apoteker_lp' => ($items->Apoteker->laki_laki ?? 0) + ($items->Apoteker->perempuan ?? 0),
 
-                    'at_l' => $item->Apoteker->sum("laki_laki") + $item->TenagaTeknikFarmasi->sum("laki_laki"),
-                    'at_p' => $item->Apoteker->sum("perempuan") + $item->TenagaTeknikFarmasi->sum('perempuan'),
-                    'at_lp' => $item->Apoteker->sum("laki_laki") + $item->Apoteker->sum("perempuan") + $item->TenagaTeknikFarmasi->sum("laki_laki") + $item->TenagaTeknikFarmasi->sum("perempuan"),
+                    'at_l' => ($items->Apoteker->laki_laki ?? 0)+ ($items->TenagaTeknikFarmasi->laki_laki ?? 0),
+                    'at_p' => ($items->Apoteker->perempuan ?? 0) + ($items->TenagaTeknikFarmasi->perempuan ?? 0),
+                    'at_lp' => ($items->Apoteker->laki_laki ?? 0) + ($items->Apoteker->perempuan ?? 0) + ($items->TenagaTeknikFarmasi->laki_laki ?? 0) + ($items->TenagaTeknikFarmasi->perempuan ?? 0),
                 ];
-
-                $employeeRows = $item->detail_desa->map(function ($items) {
-                    // dd($items->AhliLabMedik->laki_laki);
-                    return [
-                        'no' => '-',
-                        'unit_kerja' => $items->nama,
-                        'tenaga_teknik_farmasi_l' => $items->TenagaTeknikFarmasi->laki_laki ?? 0,
-                        'tenaga_teknik_farmasi_p' => $items->TenagaTeknikFarmasi->perempuan ?? 0,
-                        'tenaga_teknik_farmasi_lp' => ($items->TenagaTeknikFarmasi->laki_laki ?? 0) + ($items->TenagaTeknikFarmasi->perempuan ?? 0),
-
-                        'apoteker_l' => $items->Apoteker->laki_laki ?? 0,
-                        'apoteker_p' => $items->Apoteker->perempuan ?? 0,
-                        'apoteker_lp' => ($items->Apoteker->laki_laki ?? 0) + ($items->Apoteker->perempuan ?? 0),
-
-                        'at_l' => ($items->Apoteker->laki_laki ?? 0)+ ($items->TenagaTeknikFarmasi->laki_laki ?? 0),
-                        'at_p' => ($items->Apoteker->perempuan ?? 0) + ($items->TenagaTeknikFarmasi->perempuan ?? 0),
-                        'at_lp' => ($items->Apoteker->laki_laki ?? 0) + ($items->Apoteker->perempuan ?? 0) + ($items->TenagaTeknikFarmasi->laki_laki ?? 0) + ($items->TenagaTeknikFarmasi->perempuan ?? 0),
-                    ];
-                });
-
-                // Gabungkan header unit kerja dan employees
-                return collect([$unitKerjaRow])->concat($employeeRows);
-                // return collect([$unitKerjaRow]);
-            })->toArray();
+            });
 
             return collect($mappedData);
         }
@@ -219,7 +174,7 @@ public function registerEvents(): array
                 ],
 
             ]);
-            $lastRow = $sheet->getHighestRow();
+            $lastRow = $sheet->getHighestRow() + 1;
             $sheet->mergeCells("A{$lastRow}:B{$lastRow}");
 
             // Define the full range dynamically

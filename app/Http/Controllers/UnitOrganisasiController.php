@@ -37,9 +37,9 @@ class UnitOrganisasiController extends Controller
         if(Auth::user()->roles->first()->name !== "Admin"){
             $indukOpd = IndukOpd::where('id', Auth::user()->induk_opd_id)->pluck('nama', 'id');
         }
-        $unit_kerja = UnitKerja::where('id', Auth::user()->unit_kerja_id)->whereYear('created_at', Session::get('year'))->get();
+        $unit_kerja = UnitKerja::where('id', Auth::user()->unit_kerja_id)->get();
         if(Auth::user()->roles->first()->name == "Admin"){
-            $unit_kerja = UnitKerja::whereYear('created_at', Session::get('year'))->get();
+            $unit_kerja = UnitKerja::get();
         }
         $data = [
             'route'=>$this->routeName,

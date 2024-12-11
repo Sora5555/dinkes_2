@@ -32,12 +32,14 @@ class KategoriOpdController extends Controller
 
     public function index()
     {
+        // whereYear('created_at', Session::get('year'))
         $route = $this->routeName;
         $title = $this->title;
-        $unit_kerja = UnitKerja::where('id', Auth::user()->unit_kerja_id)->whereYear('created_at', Session::get('year'))->get();
+        $unit_kerja = UnitKerja::where('id', Auth::user()->unit_kerja_id)->get();
         if(Auth::user()->roles->first()->name == "Admin"){
-            $unit_kerja = UnitKerja::whereYear('created_at', Session::get('year'))->get();
+            $unit_kerja = UnitKerja::get();
         }
+
 
         return view($this->viewName.'.index',compact('route','title', 'unit_kerja'));
     }

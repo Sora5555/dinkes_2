@@ -36,7 +36,7 @@
                         the construction function: <code>$().DataTable();</code>.
                     </p> --}}
                     <div class="table-responsive">
-                        <form action="{{url('import_kategori_opd')}}" method="post" enctype="multipart/form-data">
+                        {{-- <form action="{{url('import_kategori_opd')}}" method="post" enctype="multipart/form-data">
                             @csrf
                             <div class="row">
                                 <div class="col-10">
@@ -49,7 +49,33 @@
                                     <a href="{{url("/export_kategori_opd")}}" class="btn btn-primary">Export</a>
                                 </div>
                             </div>
-                        </form>
+                        </form> --}}
+                        <div class="row justify-content-start mb-2">
+                            <div class="col-md-10 d-flex justify-content-around gap-3">
+                                @if(Auth::user()->downloadFile('kategori_opd', Session::get('year')))
+                                <form action="/upload/general" method="post" class="d-flex gap-5" enctype="multipart/form-data">
+                                    @csrf
+                                    <input type="hidden" name="name" value="kategori_opd" id="">
+                                    <input type="file" name="file_upload" id="" {{Auth::user()->downloadFile('kategori_opd', Session::get('year'))->status == 1 ?"disabled":""}} class="form-control" placeholder="upload PDF file">
+                                    <button type="submit" class="btn btn-success" {{Auth::user()->downloadFile('kategori_opd', Session::get('year'))->status == 1?"disabled":""}}>Upload</button>
+
+                                </form>
+                                @else
+                                <form action="/upload/general" method="post" class="d-flex gap-5" enctype="multipart/form-data">
+                                    @csrf
+                                    <input type="hidden" name="name" value="kategori_opd" id="">
+                                    <input type="file" name="file_upload" id="" class="form-control" placeholder="upload PDF file">
+                                    <button type="submit" class="btn btn-success">Upload</button>
+
+                                </form>
+                                @endif
+                                @if(Auth::user()->hasFile('kategori_opd', Session::get('year')) && Auth::user()->downloadFile('kategori_opd', Session::get('year'))->file_name != "-")
+                                    <a type="button" class="btn btn-warning" href="{{ Auth::user()->downloadFile('kategori_opd', Session::get('year'))->file_path.Auth::user()->downloadFile('kategori_opd', Session::get('year'))->file_name }}" download="" ><i class="mdi mdi-note"></i>Download pdf file</a>
+                                @endif
+                                <a href="{{url("/export_kategori_opd")}}" class="btn btn-primary">Export</a>
+                                {{-- <a type="button" class="btn btn-warning" href="{{ route('ImdAsi.excel') }}" ><i class="mdi mdi-note"></i>Report</a> --}}
+                            </div>
+                        </div>
                         <br>
                         <table id="data" class="table table-bordered" style="width:100%;">
                             <thead class="text-center">
@@ -77,7 +103,7 @@
                                 <th>L</th>
                                 <th>P</th>
                                 <th>L + P</th>
-                                <th></th>
+                                {{-- <th></th> --}}
                             </tr>
                             </thead>
                             <tbody>
@@ -85,19 +111,19 @@
                                     <tr>
                                         <td>{{$item->id}}</td>
                                         <td>{{$item->nama}}</td>
-                                        <td>{{$item->AhliLabMedik->sum("laki_laki")}}</td>
-                                        <td>{{$item->AhliLabMedik->sum("perempuan")}}</td>
-                                        <td>{{$item->AhliLabMedik->sum("laki_laki") + $item->AhliLabMedik->sum("perempuan")}}</td>
-                                        <td>{{$item->TenagaTeknikBiomedik->sum("laki_laki")}}</td>
-                                        <td>{{$item->TenagaTeknikBiomedik->sum("perempuan")}}</td>
-                                        <td>{{$item->TenagaTeknikBiomedik->sum("laki_laki") + $item->TenagaTeknikBiomedik->sum("perempuan")}}</td>
-                                        <td>{{$item->TerapiFisik->sum("laki_laki")}}</td>
-                                        <td>{{$item->TerapiFisik->sum("perempuan")}}</td>
-                                        <td>{{$item->TerapiFisik->sum("laki_laki") + $item->TerapiFisik->sum("perempuan")}}</td>
-                                        <td>{{$item->KeteknisanMedik->sum("laki_laki")}}</td>
-                                        <td>{{$item->KeteknisanMedik->sum("perempuan")}}</td>
-                                        <td>{{$item->KeteknisanMedik->sum("laki_laki") + $item->KeteknisanMedik->sum("perempuan")}}</td>
-                                        <td><button class="btn btn-success detail" id="{{$item->id}}">Detail desa</button></td>
+                                        <td>{{$item->AhliLabMedik->laki_laki ?? 0}}</td>
+                                        <td>{{$item->AhliLabMedik->perempuan ?? 0}}</td>
+                                        <td>{{($item->AhliLabMedik->laki_laki ?? 0) + ($item->AhliLabMedik->perempuan ?? 0)}}</td>
+                                        <td>{{$item->TenagaTeknikBiomedik->laki_laki ?? 0}}</td>
+                                        <td>{{$item->TenagaTeknikBiomedik->perempuan ?? 0}}</td>
+                                        <td>{{($item->TenagaTeknikBiomedik->laki_laki ?? 0) + ($item->TenagaTeknikBiomedik->perempuan ?? 0)}}</td>
+                                        <td>{{$item->TerapiFisik->laki_laki ?? 0}}</td>
+                                        <td>{{$item->TerapiFisik->perempuan ?? 0}}</td>
+                                        <td>{{($item->TerapiFisik->laki_laki ?? 0) + ($item->TerapiFisik->perempuan ?? 0) }}</td>
+                                        <td>{{$item->KeteknisanMedik->laki_laki ?? 0}}</td>
+                                        <td>{{$item->KeteknisanMedik->perempuan ?? 0}}</td>
+                                        <td>{{($item->KeteknisanMedik->laki_laki ?? 0) + ($item->KeteknisanMedik->perempuan ?? 0)}}</td>
+                                        {{-- <td><button class="btn btn-success detail" id="{{$item->id}}">Detail desa</button></td> --}}
                                         @role("Pihak Wajib Pajak")
                                         <td><a class="btn btn-mod2 btn-warning" id="{{$item->id}}"><i class="mdi mdi-pen"></a></td>
                                         @endrole

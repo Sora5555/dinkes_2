@@ -28,57 +28,96 @@ class KategoriOPDExport implements FromCollection, WithHeadings, WithEvents, Wit
         // Fetch the data you want to export
         if(Auth::user()->roles->first()->name !== "Admin"){
             // $desa = Auth::user()->unit_kerja->Desa()->get();
-            $unit_kerja = UnitKerja::where('id', Auth::user()->unit_kerja_id)->whereYear('created_at', Session::get('year'))->get();
+            $unit_kerja = UnitKerja::where('id', Auth::user()->unit_kerja_id)->get();
 
-            $mappedData = $unit_kerja->flatMap(function ($item) {
-                // Data unit kerja sebagai header
-                $unitKerjaRow = [
+
+            // $mappedData = $unit_kerja->flatMap(function ($item) {
+            //     // Data unit kerja sebagai header
+            //     $unitKerjaRow = [
+            //         'no' => $item->id,
+            //         'unit_kerja' => $item->nama,
+            //         'ahli_lab_medik_l' => $item->AhliLabMedik->sum("laki_laki"),
+            //         'ahli_lab_medik_p' => $item->AhliLabMedik->sum("perempuan"),
+            //         'ahli_lab_medik_lp' => $item->AhliLabMedik->sum("laki_laki") + $item->AhliLabMedik->sum("perempuan"),
+            //         'tenaga_teknik_biomedik_l' => $item->TenagaTeknikBiomedik->sum("laki_laki"),
+            //         'tenaga_teknik_biomedik_p' => $item->TenagaTeknikBiomedik->sum("perempuan"),
+            //         'tenaga_teknik_biomedik_lp' => $item->TenagaTeknikBiomedik->sum("laki_laki") + $item->TenagaTeknikBiomedik->sum("perempuan"),
+            //         'terapi_fisik_l' => $item->TerapiFisik->sum("laki_laki"),
+            //         'terapi_fisik_p' => $item->TerapiFisik->sum("perempuan"),
+            //         'terapi_fisik_lp' => $item->TerapiFisik->sum("laki_laki") + $item->TerapiFisik->sum("perempuan"),
+            //         'keteknisan_medik_l' => $item->KeteknisanMedik->sum("laki_laki"),
+            //         'keteknisan_medik_p' => $item->KeteknisanMedik->sum("perempuan"),
+            //         'keteknisan_medik_lp' =>$item->KeteknisanMedik->sum("laki_laki") + $item->KeteknisanMedik->sum("perempuan"),
+            //     ];
+
+            //     $employeeRows = $item->detail_desa->map(function ($items) {
+            //         // dd($items->AhliLabMedik->laki_laki);
+            //         return [
+            //             'no' => "-",
+            //             'unit_kerja' => $items->nama,
+            //             'ahli_lab_medik_l' => $items->AhliLabMedik->laki_laki ?? 0,
+            //             'ahli_lab_medik_p' => $items->AhliLabMedik->perempuan ?? 0,
+            //             'ahli_lab_medik_lp' => ($items->AhliLabMedik->laki_laki ?? 0) + ($items->AhliLabMedik->perempuan ?? 0),
+            //             'tenaga_teknik_biomedik_l' => $items->TenagaTeknikBiomedik->laki_laki ?? 0,
+            //             'tenaga_teknik_biomedik_p' => $items->TenagaTeknikBiomedik->perempuan ?? 0,
+            //             'tenaga_teknik_biomedik_lp' => ($items->TenagaTeknikBiomedik->laki_laki ?? 0) + ($items->TenagaTeknikBiomedik->perempuan ?? 0),
+            //             'terapi_fisik_l' => $items->TerapiFisik->laki_laki ?? 0,
+            //             'terapi_fisik_p' => $items->TerapiFisik->perempuan ?? 0,
+            //             'terapi_fisik_lp' => ($items->TerapiFisik->laki_laki ?? 0) + ($items->TerapiFisik->perempuan ?? 0),
+            //             'keteknisan_medik_l' => $items->KeteknisanMedik->laki_laki ?? 0,
+            //             'keteknisan_medik_p' => $items->KeteknisanMedik->perempuan ?? 0,
+            //             'keteknisan_medik_lp' => ($items->KeteknisanMedik->laki_laki ?? 0) + ($items->KeteknisanMedik->perempuan ?? 0),
+            //         ];
+            //     });
+
+            //     // Gabungkan header unit kerja dan employees
+            //     return collect([$unitKerjaRow])->concat($employeeRows);
+            //     // return collect([$unitKerjaRow]);
+            // })->toArray();
+
+            $mappedData = $unit_kerja->map(function ($item) {
+                return [
                     'no' => $item->id,
                     'unit_kerja' => $item->nama,
-                    'ahli_lab_medik_l' => $item->AhliLabMedik->sum("laki_laki"),
-                    'ahli_lab_medik_p' => $item->AhliLabMedik->sum("perempuan"),
-                    'ahli_lab_medik_lp' => $item->AhliLabMedik->sum("laki_laki") + $item->AhliLabMedik->sum("perempuan"),
-                    'tenaga_teknik_biomedik_l' => $item->TenagaTeknikBiomedik->sum("laki_laki"),
-                    'tenaga_teknik_biomedik_p' => $item->TenagaTeknikBiomedik->sum("perempuan"),
-                    'tenaga_teknik_biomedik_lp' => $item->TenagaTeknikBiomedik->sum("laki_laki") + $item->TenagaTeknikBiomedik->sum("perempuan"),
-                    'terapi_fisik_l' => $item->TerapiFisik->sum("laki_laki"),
-                    'terapi_fisik_p' => $item->TerapiFisik->sum("perempuan"),
-                    'terapi_fisik_lp' => $item->TerapiFisik->sum("laki_laki") + $item->TerapiFisik->sum("perempuan"),
-                    'keteknisan_medik_l' => $item->KeteknisanMedik->sum("laki_laki"),
-                    'keteknisan_medik_p' => $item->KeteknisanMedik->sum("perempuan"),
-                    'keteknisan_medik_lp' =>$item->KeteknisanMedik->sum("laki_laki") + $item->KeteknisanMedik->sum("perempuan"),
+                    'ahli_lab_medik_l' => $item->AhliLabMedik->laki_laki ?? 0,
+                    'ahli_lab_medik_p' => $item->AhliLabMedik->perempuan ?? 0,
+                    'ahli_lab_medik_lp' => ($item->AhliLabMedik->laki_laki ?? 0) + ($item->AhliLabMedik->perempuan ?? 0),
+                    'tenaga_teknik_biomedik_l' => $item->TenagaTeknikBiomedik->laki_laki ?? 0,
+                    'tenaga_teknik_biomedik_p' => $item->TenagaTeknikBiomedik->perempuan ?? 0,
+                    'tenaga_teknik_biomedik_lp' => ($item->TenagaTeknikBiomedik->laki_laki ?? 0) + ($item->TenagaTeknikBiomedik->perempuan ?? 0),
+                    'terapi_fisik_l' => $item->TerapiFisik->laki_laki ?? 0,
+                    'terapi_fisik_p' => $item->TerapiFisik->perempuan ?? 0,
+                    'terapi_fisik_lp' => ($item->TerapiFisik->laki_laki ?? 0) + ($item->TerapiFisik->perempuan ?? 0),
+                    'keteknisan_medik_l' => $item->KeteknisanMedik->laki_laki ?? 0,
+                    'keteknisan_medik_p' => $item->KeteknisanMedik->perempuan ?? 0,
+                    'keteknisan_medik_lp' => ($item->KeteknisanMedik->laki_laki ?? 0) + ($item->KeteknisanMedik->perempuan ?? 0),
                 ];
-
-                $employeeRows = $item->detail_desa->map(function ($items) {
-                    // dd($items->AhliLabMedik->laki_laki);
-                    return [
-                        'no' => "-",
-                        'unit_kerja' => $items->nama,
-                        'ahli_lab_medik_l' => $items->AhliLabMedik->laki_laki ?? 0,
-                        'ahli_lab_medik_p' => $items->AhliLabMedik->perempuan ?? 0,
-                        'ahli_lab_medik_lp' => ($items->AhliLabMedik->laki_laki ?? 0) + ($items->AhliLabMedik->perempuan ?? 0),
-                        'tenaga_teknik_biomedik_l' => $items->TenagaTeknikBiomedik->laki_laki ?? 0,
-                        'tenaga_teknik_biomedik_p' => $items->TenagaTeknikBiomedik->perempuan ?? 0,
-                        'tenaga_teknik_biomedik_lp' => ($items->TenagaTeknikBiomedik->laki_laki ?? 0) + ($items->TenagaTeknikBiomedik->perempuan ?? 0),
-                        'terapi_fisik_l' => $items->TerapiFisik->laki_laki ?? 0,
-                        'terapi_fisik_p' => $items->TerapiFisik->perempuan ?? 0,
-                        'terapi_fisik_lp' => ($items->TerapiFisik->laki_laki ?? 0) + ($items->TerapiFisik->perempuan ?? 0),
-                        'keteknisan_medik_l' => $items->KeteknisanMedik->laki_laki ?? 0,
-                        'keteknisan_medik_p' => $items->KeteknisanMedik->perempuan ?? 0,
-                        'keteknisan_medik_lp' => ($items->KeteknisanMedik->laki_laki ?? 0) + ($items->KeteknisanMedik->perempuan ?? 0),
-                    ];
-                });
-
-                // Gabungkan header unit kerja dan employees
-                return collect([$unitKerjaRow])->concat($employeeRows);
-                // return collect([$unitKerjaRow]);
             })->toArray();
 
             return collect($mappedData);
 
         } else {
-            $unit_kerja = UnitKerja::whereYear('created_at', Session::get('year'))->get();
+            $unit_kerja = UnitKerja::get();
 
+
+            $mappedData = $unit_kerja->map(function ($item) {
+                return [
+                    'no' => $item->id,
+                    'unit_kerja' => $item->nama,
+                    'ahli_lab_medik_l' => $item->AhliLabMedik->laki_laki ?? 0,
+                    'ahli_lab_medik_p' => $item->AhliLabMedik->perempuan ?? 0,
+                    'ahli_lab_medik_lp' => ($item->AhliLabMedik->laki_laki ?? 0) + ($item->AhliLabMedik->perempuan ?? 0),
+                    'tenaga_teknik_biomedik_l' => $item->TenagaTeknikBiomedik->laki_laki ?? 0,
+                    'tenaga_teknik_biomedik_p' => $item->TenagaTeknikBiomedik->perempuan ?? 0,
+                    'tenaga_teknik_biomedik_lp' => ($item->TenagaTeknikBiomedik->laki_laki ?? 0) + ($item->TenagaTeknikBiomedik->perempuan ?? 0),
+                    'terapi_fisik_l' => $item->TerapiFisik->laki_laki ?? 0,
+                    'terapi_fisik_p' => $item->TerapiFisik->perempuan ?? 0,
+                    'terapi_fisik_lp' => ($item->TerapiFisik->laki_laki ?? 0) + ($item->TerapiFisik->perempuan ?? 0),
+                    'keteknisan_medik_l' => $item->KeteknisanMedik->laki_laki ?? 0,
+                    'keteknisan_medik_p' => $item->KeteknisanMedik->perempuan ?? 0,
+                    'keteknisan_medik_lp' => ($item->KeteknisanMedik->laki_laki ?? 0) + ($item->KeteknisanMedik->perempuan ?? 0),
+                ];
+            })->toArray();
             // $unitKerja = UnitKerja::all();
 
             // $totals = [
@@ -137,49 +176,49 @@ class KategoriOPDExport implements FromCollection, WithHeadings, WithEvents, Wit
 
             // dd($unit_kerja);
 
-            $mappedData = $unit_kerja->flatMap(function ($item) {
-                // Data unit kerja sebagai header
-                $unitKerjaRow = [
-                    'no' => $item->id,
-                    'unit_kerja' => $item->nama,
-                    'ahli_lab_medik_l' => $item->AhliLabMedik->sum("laki_laki"),
-                    'ahli_lab_medik_p' => $item->AhliLabMedik->sum("perempuan"),
-                    'ahli_lab_medik_lp' => $item->AhliLabMedik->sum("laki_laki") + $item->AhliLabMedik->sum("perempuan"),
-                    'tenaga_teknik_biomedik_l' => $item->TenagaTeknikBiomedik->sum("laki_laki"),
-                    'tenaga_teknik_biomedik_p' => $item->TenagaTeknikBiomedik->sum("perempuan"),
-                    'tenaga_teknik_biomedik_lp' => $item->TenagaTeknikBiomedik->sum("laki_laki") + $item->TenagaTeknikBiomedik->sum("perempuan"),
-                    'terapi_fisik_l' => $item->TerapiFisik->sum("laki_laki"),
-                    'terapi_fisik_p' => $item->TerapiFisik->sum("perempuan"),
-                    'terapi_fisik_lp' => $item->TerapiFisik->sum("laki_laki") + $item->TerapiFisik->sum("perempuan"),
-                    'keteknisan_medik_l' => $item->KeteknisanMedik->sum("laki_laki"),
-                    'keteknisan_medik_p' => $item->KeteknisanMedik->sum("perempuan"),
-                    'keteknisan_medik_lp' =>$item->KeteknisanMedik->sum("laki_laki") + $item->KeteknisanMedik->sum("perempuan"),
-                ];
+            // $mappedData = $unit_kerja->flatMap(function ($item) {
+            //     // Data unit kerja sebagai header
+            //     $unitKerjaRow = [
+            //         'no' => $item->id,
+            //         'unit_kerja' => $item->nama,
+            //         'ahli_lab_medik_l' => $item->AhliLabMedik->sum("laki_laki"),
+            //         'ahli_lab_medik_p' => $item->AhliLabMedik->sum("perempuan"),
+            //         'ahli_lab_medik_lp' => $item->AhliLabMedik->sum("laki_laki") + $item->AhliLabMedik->sum("perempuan"),
+            //         'tenaga_teknik_biomedik_l' => $item->TenagaTeknikBiomedik->sum("laki_laki"),
+            //         'tenaga_teknik_biomedik_p' => $item->TenagaTeknikBiomedik->sum("perempuan"),
+            //         'tenaga_teknik_biomedik_lp' => $item->TenagaTeknikBiomedik->sum("laki_laki") + $item->TenagaTeknikBiomedik->sum("perempuan"),
+            //         'terapi_fisik_l' => $item->TerapiFisik->sum("laki_laki"),
+            //         'terapi_fisik_p' => $item->TerapiFisik->sum("perempuan"),
+            //         'terapi_fisik_lp' => $item->TerapiFisik->sum("laki_laki") + $item->TerapiFisik->sum("perempuan"),
+            //         'keteknisan_medik_l' => $item->KeteknisanMedik->sum("laki_laki"),
+            //         'keteknisan_medik_p' => $item->KeteknisanMedik->sum("perempuan"),
+            //         'keteknisan_medik_lp' =>$item->KeteknisanMedik->sum("laki_laki") + $item->KeteknisanMedik->sum("perempuan"),
+            //     ];
 
-                $employeeRows = $item->detail_desa->map(function ($items) {
-                    // dd($items->AhliLabMedik->laki_laki);
-                    return [
-                        'no' => "-",
-                        'unit_kerja' => $items->nama,
-                        'ahli_lab_medik_l' => $items->AhliLabMedik->laki_laki ?? 0,
-                        'ahli_lab_medik_p' => $items->AhliLabMedik->perempuan ?? 0,
-                        'ahli_lab_medik_lp' => ($items->AhliLabMedik->laki_laki ?? 0) + ($items->AhliLabMedik->perempuan ?? 0),
-                        'tenaga_teknik_biomedik_l' => $items->TenagaTeknikBiomedik->laki_laki ?? 0,
-                        'tenaga_teknik_biomedik_p' => $items->TenagaTeknikBiomedik->perempuan ?? 0,
-                        'tenaga_teknik_biomedik_lp' => ($items->TenagaTeknikBiomedik->laki_laki ?? 0) + ($items->TenagaTeknikBiomedik->perempuan ?? 0),
-                        'terapi_fisik_l' => $items->TerapiFisik->laki_laki ?? 0,
-                        'terapi_fisik_p' => $items->TerapiFisik->perempuan ?? 0,
-                        'terapi_fisik_lp' => ($items->TerapiFisik->laki_laki ?? 0) + ($items->TerapiFisik->perempuan ?? 0),
-                        'keteknisan_medik_l' => $items->KeteknisanMedik->laki_laki ?? 0,
-                        'keteknisan_medik_p' => $items->KeteknisanMedik->perempuan ?? 0,
-                        'keteknisan_medik_lp' => ($items->KeteknisanMedik->laki_laki ?? 0) + ($items->KeteknisanMedik->perempuan ?? 0),
-                    ];
-                });
+            //     $employeeRows = $item->detail_desa->map(function ($items) {
+            //         // dd($items->AhliLabMedik->laki_laki);
+            //         return [
+            //             'no' => "-",
+            //             'unit_kerja' => $items->nama,
+            //             'ahli_lab_medik_l' => $items->AhliLabMedik->laki_laki ?? 0,
+            //             'ahli_lab_medik_p' => $items->AhliLabMedik->perempuan ?? 0,
+            //             'ahli_lab_medik_lp' => ($items->AhliLabMedik->laki_laki ?? 0) + ($items->AhliLabMedik->perempuan ?? 0),
+            //             'tenaga_teknik_biomedik_l' => $items->TenagaTeknikBiomedik->laki_laki ?? 0,
+            //             'tenaga_teknik_biomedik_p' => $items->TenagaTeknikBiomedik->perempuan ?? 0,
+            //             'tenaga_teknik_biomedik_lp' => ($items->TenagaTeknikBiomedik->laki_laki ?? 0) + ($items->TenagaTeknikBiomedik->perempuan ?? 0),
+            //             'terapi_fisik_l' => $items->TerapiFisik->laki_laki ?? 0,
+            //             'terapi_fisik_p' => $items->TerapiFisik->perempuan ?? 0,
+            //             'terapi_fisik_lp' => ($items->TerapiFisik->laki_laki ?? 0) + ($items->TerapiFisik->perempuan ?? 0),
+            //             'keteknisan_medik_l' => $items->KeteknisanMedik->laki_laki ?? 0,
+            //             'keteknisan_medik_p' => $items->KeteknisanMedik->perempuan ?? 0,
+            //             'keteknisan_medik_lp' => ($items->KeteknisanMedik->laki_laki ?? 0) + ($items->KeteknisanMedik->perempuan ?? 0),
+            //         ];
+            //     });
 
-                // Gabungkan header unit kerja dan employees
-                return collect([$unitKerjaRow])->concat($employeeRows);
-                // return collect([$unitKerjaRow]);
-            })->toArray();
+            //     // Gabungkan header unit kerja dan employees
+            //     return collect([$unitKerjaRow])->concat($employeeRows);
+            //     // return collect([$unitKerjaRow]);
+            // })->toArray();
 
             return collect($mappedData);
         }
@@ -279,7 +318,7 @@ public function registerEvents(): array
                 ],
 
             ]);
-            $lastRow = $sheet->getHighestRow();
+            $lastRow = $sheet->getHighestRow() + 1;
             $sheet->mergeCells("A{$lastRow}:B{$lastRow}");
 
             // Define the full range dynamically

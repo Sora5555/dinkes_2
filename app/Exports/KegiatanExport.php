@@ -28,111 +28,58 @@ class KegiatanExport implements FromCollection, WithHeadings, WithEvents, WithCu
         // Fetch the data you want to export
         if(Auth::user()->roles->first()->name !== "Admin"){
             // $desa = Auth::user()->unit_kerja->Desa()->get();
-            $unit_kerja = UnitKerja::where('id', Auth::user()->unit_kerja_id)->whereYear('created_at', Session::get('year'))->get();
+            $unit_kerja = UnitKerja::where('id', Auth::user()->unit_kerja_id)->get();
 
-            $mappedData = $unit_kerja->flatMap(function ($item) {
-                // Data unit kerja sebagai header
-                $unitKerjaRow = [
-                    'no' => $item->id,
-                    'unit_kerja' => $item->nama,
-                    'pejabat_struktural_l' => $item->PejabatStruktural->sum("laki_laki"),
-                    'pejabat_struktural_p' => $item->PejabatStruktural->sum("perempuan"),
-                    'pejabat_struktural_lp' => $item->PejabatStruktural->sum("laki_laki") + $item->PejabatStruktural->sum("perempuan"),
 
-                    'tenaga_pendidik_l' => $item->TenagaPendidik->sum("laki_laki"),
-                    'tenaga_pendidik_p' => $item->TenagaPendidik->sum("perempuan"),
-                    'tenaga_pendidik_lp' => $item->TenagaPendidik->sum("laki_laki") + $item->TenagaPendidik->sum("perempuan"),
+            $mappedData = $unit_kerja->map(function ($items) {
+                // dd($items->AhliLabMedik->laki_laki);
+                return [
+                    'no' => '-',
+                    'unit_kerja' => $items->nama,
+                    'pejabat_struktural_l' => $items->PejabatStruktural->laki_laki ?? 0,
+                    'pejabat_struktural_p' => $items->PejabatStruktural->perempuan ?? 0,
+                    'pejabat_struktural_lp' => ($items->PejabatStruktural->laki_laki ?? 0) + ($items->PejabatStruktural->perempuan ?? 0),
 
-                    'manajemen_l' => $item->Manajemen->sum("laki_laki"),
-                    'manajemen_p' => $item->Manajemen->sum("perempuan"),
-                    'manajemen_lp' => $item->Manajemen->sum("laki_laki") + $item->Manajemen->sum("perempuan"),
+                    'tenaga_pendidik_l' => $items->TenagaPendidik->laki_laki ?? 0,
+                    'tenaga_pendidik_p' => $items->TenagaPendidik->perempuan ?? 0,
+                    'tenaga_pendidik_lp' => ($items->TenagaPendidik->laki_laki ?? 0) + ($items->TenagaPendidik->perempuan ?? 0),
 
-                    'ptm_l' => $item->PejabatStruktural->sum("laki_laki") + $item->TenagaPendidik->sum("laki_laki") + $item->Manajemen->sum("laki_laki"),
-                    'ptm_p' => $item->PejabatStruktural->sum("perempuan") + $item->TenagaPendidik->sum('perempuan') + $item->Manajemen->sum('perempuan'),
-                    'ptm_lp' => $item->PejabatStruktural->sum("laki_laki") + $item->TenagaPendidik->sum("laki_laki") + $item->Manajemen->sum("laki_laki") + $item->PejabatStruktural->sum("perempuan") + $item->TenagaPendidik->sum("perempuan") + $item->Manajemen->sum("perempuan"),
+                    'manajemen_l' => $items->Manajemen->laki_laki ?? 0,
+                    'manajemen_p' => $items->Manajemen->perempuan ?? 0,
+                    'manajemen_lp' => ($items->Manajemen->laki_laki ?? 0 )+ ($items->Manajemen->perempuan ?? 0),
+
+                    'ptm_l' => ($items->PejabatStruktural->laki_laki ?? 0) + ($items->TenagaPendidik->laki_laki ?? 0) + ($items->Manajemen->laki_laki ?? 0),
+                    'ptm_p' => ($items->PejabatStruktural->perempuan ?? 0) + ($items->TenagaPendidik->perempuan ?? 0) + ($items->Manajemen->perempuan ?? 0),
+                    'ptm_lp' => ($items->PejabatStruktural->laki_laki ?? 0) + ($items->TenagaPendidik->laki_laki ?? 0) + ($items->Manajemen->laki_laki ?? 0) + ($items->PejabatStruktural->perempuan ?? 0) + ($items->TenagaPendidik->perempuan ?? 0) + ($items->Manajemen->perempuan ?? 0),
                 ];
-
-                $employeeRows = $item->detail_desa->map(function ($items) {
-                    // dd($items->AhliLabMedik->laki_laki);
-                    return [
-                        'no' => '-',
-                        'unit_kerja' => $items->nama,
-                        'pejabat_struktural_l' => $items->PejabatStruktural->laki_laki ?? 0,
-                        'pejabat_struktural_p' => $items->PejabatStruktural->perempuan ?? 0,
-                        'pejabat_struktural_lp' => ($items->PejabatStruktural->laki_laki ?? 0) + ($items->PejabatStruktural->perempuan ?? 0),
-
-                        'tenaga_pendidik_l' => $items->TenagaPendidik->laki_laki ?? 0,
-                        'tenaga_pendidik_p' => $items->TenagaPendidik->perempuan ?? 0,
-                        'tenaga_pendidik_lp' => ($items->TenagaPendidik->laki_laki ?? 0) + ($items->TenagaPendidik->perempuan ?? 0),
-
-                        'manajemen_l' => $items->Manajemen->laki_laki ?? 0,
-                        'manajemen_p' => $items->Manajemen->perempuan ?? 0,
-                        'manajemen_lp' => ($items->Manajemen->laki_laki ?? 0 )+ ($items->Manajemen->perempuan ?? 0),
-
-                        'ptm_l' => ($items->PejabatStruktural->laki_laki ?? 0) + ($items->TenagaPendidik->laki_laki ?? 0) + ($items->Manajemen->laki_laki ?? 0),
-                        'ptm_p' => ($items->PejabatStruktural->perempuan ?? 0) + ($items->TenagaPendidik->perempuan ?? 0) + ($items->Manajemen->perempuan ?? 0),
-                        'ptm_lp' => ($items->PejabatStruktural->laki_laki ?? 0) + ($items->TenagaPendidik->laki_laki ?? 0) + ($items->Manajemen->laki_laki ?? 0) + ($items->PejabatStruktural->perempuan ?? 0) + ($items->TenagaPendidik->perempuan ?? 0) + ($items->Manajemen->perempuan ?? 0),
-                    ];
-                });
-
-                // Gabungkan header unit kerja dan employees
-                return collect([$unitKerjaRow])->concat($employeeRows);
-                // return collect([$unitKerjaRow]);
             })->toArray();
 
             return collect($mappedData);
 
         } else {
-            $unit_kerja = UnitKerja::whereYear('created_at', Session::get('year'))->get();
+            $unit_kerja = UnitKerja::get();
 
-            $mappedData = $unit_kerja->flatMap(function ($item) {
-                // Data unit kerja sebagai header
-                $unitKerjaRow = [
-                    'no' => $item->id,
-                    'unit_kerja' => $item->nama,
-                    'pejabat_struktural_l' => $item->PejabatStruktural->sum("laki_laki"),
-                    'pejabat_struktural_p' => $item->PejabatStruktural->sum("perempuan"),
-                    'pejabat_struktural_lp' => $item->PejabatStruktural->sum("laki_laki") + $item->PejabatStruktural->sum("perempuan"),
+            $mappedData = $unit_kerja->map(function ($items) {
+                // dd($items->AhliLabMedik->laki_laki);
+                return [
+                    'no' => '-',
+                    'unit_kerja' => $items->nama,
+                    'pejabat_struktural_l' => $items->PejabatStruktural->laki_laki ?? 0,
+                    'pejabat_struktural_p' => $items->PejabatStruktural->perempuan ?? 0,
+                    'pejabat_struktural_lp' => ($items->PejabatStruktural->laki_laki ?? 0) + ($items->PejabatStruktural->perempuan ?? 0),
 
-                    'tenaga_pendidik_l' => $item->TenagaPendidik->sum("laki_laki"),
-                    'tenaga_pendidik_p' => $item->TenagaPendidik->sum("perempuan"),
-                    'tenaga_pendidik_lp' => $item->TenagaPendidik->sum("laki_laki") + $item->TenagaPendidik->sum("perempuan"),
+                    'tenaga_pendidik_l' => $items->TenagaPendidik->laki_laki ?? 0,
+                    'tenaga_pendidik_p' => $items->TenagaPendidik->perempuan ?? 0,
+                    'tenaga_pendidik_lp' => ($items->TenagaPendidik->laki_laki ?? 0) + ($items->TenagaPendidik->perempuan ?? 0),
 
-                    'manajemen_l' => $item->Manajemen->sum("laki_laki"),
-                    'manajemen_p' => $item->Manajemen->sum("perempuan"),
-                    'manajemen_lp' => $item->Manajemen->sum("laki_laki") + $item->Manajemen->sum("perempuan"),
+                    'manajemen_l' => $items->Manajemen->laki_laki ?? 0,
+                    'manajemen_p' => $items->Manajemen->perempuan ?? 0,
+                    'manajemen_lp' => ($items->Manajemen->laki_laki ?? 0 )+ ($items->Manajemen->perempuan ?? 0),
 
-                    'ptm_l' => $item->PejabatStruktural->sum("laki_laki") + $item->TenagaPendidik->sum("laki_laki") + $item->Manajemen->sum("laki_laki"),
-                    'ptm_p' => $item->PejabatStruktural->sum("perempuan") + $item->TenagaPendidik->sum('perempuan') + $item->Manajemen->sum('perempuan'),
-                    'ptm_lp' => $item->PejabatStruktural->sum("laki_laki") + $item->TenagaPendidik->sum("laki_laki") + $item->Manajemen->sum("laki_laki") + $item->PejabatStruktural->sum("perempuan") + $item->TenagaPendidik->sum("perempuan") + $item->Manajemen->sum("perempuan"),
+                    'ptm_l' => ($items->PejabatStruktural->laki_laki ?? 0) + ($items->TenagaPendidik->laki_laki ?? 0) + ($items->Manajemen->laki_laki ?? 0),
+                    'ptm_p' => ($items->PejabatStruktural->perempuan ?? 0) + ($items->TenagaPendidik->perempuan ?? 0) + ($items->Manajemen->perempuan ?? 0),
+                    'ptm_lp' => ($items->PejabatStruktural->laki_laki ?? 0) + ($items->TenagaPendidik->laki_laki ?? 0) + ($items->Manajemen->laki_laki ?? 0) + ($items->PejabatStruktural->perempuan ?? 0) + ($items->TenagaPendidik->perempuan ?? 0) + ($items->Manajemen->perempuan ?? 0),
                 ];
-
-                $employeeRows = $item->detail_desa->map(function ($items) {
-                    // dd($items->AhliLabMedik->laki_laki);
-                    return [
-                        'no' => '-',
-                        'unit_kerja' => $items->nama,
-                        'pejabat_struktural_l' => $items->PejabatStruktural->laki_laki ?? 0,
-                        'pejabat_struktural_p' => $items->PejabatStruktural->perempuan ?? 0,
-                        'pejabat_struktural_lp' => ($items->PejabatStruktural->laki_laki ?? 0) + ($items->PejabatStruktural->perempuan ?? 0),
-
-                        'tenaga_pendidik_l' => $items->TenagaPendidik->laki_laki ?? 0,
-                        'tenaga_pendidik_p' => $items->TenagaPendidik->perempuan ?? 0,
-                        'tenaga_pendidik_lp' => ($items->TenagaPendidik->laki_laki ?? 0) + ($items->TenagaPendidik->perempuan ?? 0),
-
-                        'manajemen_l' => $items->Manajemen->laki_laki ?? 0,
-                        'manajemen_p' => $items->Manajemen->perempuan ?? 0,
-                        'manajemen_lp' => ($items->Manajemen->laki_laki ?? 0 )+ ($items->Manajemen->perempuan ?? 0),
-
-                        'ptm_l' => ($items->PejabatStruktural->laki_laki ?? 0) + ($items->TenagaPendidik->laki_laki ?? 0) + ($items->Manajemen->laki_laki ?? 0),
-                        'ptm_p' => ($items->PejabatStruktural->perempuan ?? 0) + ($items->TenagaPendidik->perempuan ?? 0) + ($items->Manajemen->perempuan ?? 0),
-                        'ptm_lp' => ($items->PejabatStruktural->laki_laki ?? 0) + ($items->TenagaPendidik->laki_laki ?? 0) + ($items->Manajemen->laki_laki ?? 0) + ($items->PejabatStruktural->perempuan ?? 0) + ($items->TenagaPendidik->perempuan ?? 0) + ($items->Manajemen->perempuan ?? 0),
-                    ];
-                });
-
-                // Gabungkan header unit kerja dan employees
-                return collect([$unitKerjaRow])->concat($employeeRows);
-                // return collect([$unitKerjaRow]);
             })->toArray();
 
             return collect($mappedData);
@@ -237,7 +184,7 @@ public function registerEvents(): array
                 ],
 
             ]);
-            $lastRow = $sheet->getHighestRow();
+            $lastRow = $sheet->getHighestRow() + 1;
             $sheet->mergeCells("A{$lastRow}:B{$lastRow}");
 
             // Define the full range dynamically
