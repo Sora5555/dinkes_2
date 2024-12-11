@@ -48,6 +48,7 @@
                             </div>
                         </form>
                         <br> --}}
+                        <a href="{{url("/export_GawatDaruratSatu")}}" class="btn btn-primary">Export</a>
                         <table id="data" class="table table-bordered dt-responsive" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                             <thead class="text-center">
                             <tr>

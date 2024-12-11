@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\AngkaKematianExport;
 use App\Models\AngkaKematian;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -99,6 +100,14 @@ class AngkaKematianController extends Controller
             'net_death_rate_P' => $net_death_rate_P,
             'net_death_rate_LP' => $net_death_rate_LP,
         ]);
+    }
+
+    public function export() {
+        try {
+            return Excel::download(new AngkaKematianExport, 'angka_kematian_report_'.Session::get('year').'.xlsx');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
+        }
     }
 
     public function import(Request $request)

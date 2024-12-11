@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ObatExport;
 use App\Models\Obat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -83,6 +84,14 @@ class ObatController extends Controller
             'status' => 'success',
             'err' => $err,
         ]);
+    }
+
+    public function export() {
+        try {
+            return Excel::download(new ObatExport, 'obat_report_'.Session::get('year').'.xlsx');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
+        }
     }
 
     public function import(Request $request)

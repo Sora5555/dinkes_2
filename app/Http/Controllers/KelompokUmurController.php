@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\KelompokUmurExport;
 use App\Models\KelompokUmur;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -110,6 +111,14 @@ class KelompokUmurController extends Controller
         DB::commit();
 
         return redirect(route($this->routeName.'.index'))->with(['success'=>'Berhasil Menambah Sasaran']);
+    }
+
+    public function export() {
+        try {
+            return Excel::download(new KelompokUmurExport, 'kelompok_umur_report_'.Session::get('year').'.xlsx');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
+        }
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\VaksinExport;
 use App\Models\Vaksin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -159,6 +160,14 @@ class VaksinController extends Controller
         DB::commit();
 
         return redirect(route($this->routeName.'.index'))->with(['success'=>'Berhasil Menambah Sasaran']);
+    }
+
+    public function export() {
+        try {
+            return Excel::download(new VaksinExport, 'vaksin_report_'.Session::get('year').'.xlsx');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
+        }
     }
 
 

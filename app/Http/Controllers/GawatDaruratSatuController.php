@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\GawatDaruratSatuExport;
 use App\Models\FasilitasKesehatan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -60,6 +61,15 @@ class GawatDaruratSatuController extends Controller
             'persen' => $persen,
         ]);
     }
+
+    public function export() {
+        try {
+            return Excel::download(new GawatDaruratSatuExport, 'gawat_darurat_satu_report_'.Session::get('year').'.xlsx');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
+        }
+    }
+
 
     public function import(Request $request)
     {

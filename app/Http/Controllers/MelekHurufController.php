@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\MelekHurufExport;
 use App\Models\KelompokUmur;
 use App\Models\MelekHuruf;
 use Illuminate\Http\Request;
@@ -74,6 +75,14 @@ class MelekHurufController extends Controller
             'persen_perempuan' => $persen_perempuan,
             'persen_laki_laki_perempuan' => $persen_laki_laki_perempuan,
         ]);
+    }
+
+    public function export() {
+        try {
+            return Excel::download(new MelekHurufExport, 'melek_huruf_report_'.Session::get('year').'.xlsx');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
+        }
     }
 
     public function import(Request $request)

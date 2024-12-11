@@ -61,6 +61,7 @@
                                 <div class="col-2">
                                     <label for="">-</label><br>
                                     <button type="submit" class="btn btn-success">Import</button>
+                                    <a href="{{url("/export_Obat")}}" class="btn btn-primary">Export</a>
                                 </div>
                             </div>
                         </form>

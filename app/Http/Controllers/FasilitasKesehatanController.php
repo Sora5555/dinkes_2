@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\FasilitasKesehatanExport;
 use App\Models\FasilitasKesehatan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -64,6 +65,15 @@ class FasilitasKesehatanController extends Controller
             'total' => $total,
         ]);
     }
+
+    public function export() {
+        try {
+            return Excel::download(new FasilitasKesehatanExport, 'fasilitas_kesehatan_report_'.Session::get('year').'.xlsx');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
+        }
+    }
+
 
     public function import(Request $request)
     {

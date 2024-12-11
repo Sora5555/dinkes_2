@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\DetailWilayahExport;
 use App\Models\IndukOpd;
 use App\Models\UnitKerja;
 use Illuminate\Http\Request;
@@ -88,6 +89,14 @@ class DetailWilayahController extends Controller
             'rata_rata_rumah_tangga' => $rata_rata_rumah_tangga,
             'kepadatanPenduduk' => $request->kepadatanPenduduk,
         ]);
+    }
+
+    public function export() {
+        try {
+            return Excel::download(new DetailWilayahExport, 'detail_wilayah_report_'.Session::get('year').'.xlsx');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
+        }
     }
 
     public function import(Request $request)

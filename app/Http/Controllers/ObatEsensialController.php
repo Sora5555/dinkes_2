@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ObatEsensialExport;
 use App\Models\IndukOpd;
 use App\Models\ObatEsensial;
 use App\Models\UnitKerja;
@@ -87,6 +88,14 @@ class ObatEsensialController extends Controller
             'status' => 'success',
             'err' => $err,
         ]);
+    }
+
+    public function export() {
+        try {
+            return Excel::download(new ObatEsensialExport, 'obat_esensial_report_'.Session::get('year').'.xlsx');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
+        }
     }
 
     public function import(Request $request)

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\JaminanKesehatanExport;
 use App\Models\JaminanKesehatan;
 use App\Models\JumlahPenduduk;
 use Illuminate\Http\Request;
@@ -151,6 +152,14 @@ class JaminanKesehatanController extends Controller
         DB::commit();
 
         return redirect(route($this->routeName.'.index'))->with(['success'=>'Berhasil Menambah Sasaran']);
+    }
+
+    public function export() {
+        try {
+            return Excel::download(new JaminanKesehatanExport, 'jaminan_kesehatan_report_'.Session::get('year').'.xlsx');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
+        }
     }
 
     /**

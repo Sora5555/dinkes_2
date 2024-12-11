@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\IndikatorKinerjaExport;
 use App\Models\AngkaKematian;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -65,6 +66,14 @@ class IndikatorKinerjaController extends Controller
             'toi' => $toi,
             'alos' => $alos,
         ]);
+    }
+
+    public function export() {
+        try {
+            return Excel::download(new IndikatorKinerjaExport, 'indikator_kinerja_report_'.Session::get('year').'.xlsx');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
+        }
     }
 
     public function import(Request $request)

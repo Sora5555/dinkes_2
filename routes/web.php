@@ -404,42 +404,61 @@ Route::middleware(['auth'])->group(function()use($ctrl){
     Route::resource('tenaga_medis', TenagaMedisController::class);
     Route::resource('keperawatan', KeperawatanController::class);
     Route::resource('verifikasi', VerifikasiController::class);
+
     Route::resource('DetailWilayah', DetailWilayahController::class);
     Route::post('/import_DetailWilayah', [DetailWilayahController::class, 'import']);
+    Route::get('/export_DetailWilayah', [DetailWilayahController::class, 'export']);
 
 
     Route::resource('pengelola_program', PengelolaProgramController::class);
+
     Route::resource('ObatEsensial', ObatEsensialController::class);
     Route::post('/import_ObatEsensial', [ObatEsensialController::class, 'import']);
+    Route::get('/export_ObatEsensial', [ObatEsensialController::class, 'export']);
 
     Route::resource('KelompokUmur', KelompokUmurController::class);
     Route::post('/import_KelompokUmur', [KelompokUmurController::class, 'import']);
-
+    Route::get('/export_KelompokUmur', [KelompokUmurController::class, 'export']);
 
     Route::resource('MelekHuruf', MelekHurufController::class);
     Route::post('/import_MelekHuruf', [MelekHurufController::class, 'import']);
+    Route::get('/export_MelekHuruf', [MelekHurufController::class, 'export']);
+
 
     Route::resource('FasilitasKesehatan', FasilitasKesehatanController::class);
     Route::post('/import_FasilitasKesehatan', [FasilitasKesehatanController::class, 'import']);
+    Route::get('/export_FasilitasKesehatan', [FasilitasKesehatanController::class, 'export']);
 
     Route::resource('GawatDaruratSatu', GawatDaruratSatuController::class);
     // Route::post('/import_GawatDaruratSatu', [GawatDaruratSatuController::class, 'import']);
+    Route::get('/export_GawatDaruratSatu', [GawatDaruratSatuController::class, 'export']);
 
     Route::resource('AngkaKematian', AngkaKematianController::class);
     Route::post('/import_AngkaKematian', [AngkaKematianController::class, 'import']);
+    Route::get('/export_AngkaKematian', [AngkaKematianController::class, 'export']);
 
     Route::resource('IndikatorKinerja', IndikatorKinerjaController::class);
     Route::post('/import_IndikatorKinerja', [IndikatorKinerjaController::class, 'import']);
+    Route::get('/export_IndikatorKinerja', [IndikatorKinerjaController::class, 'export']);
+
 
     Route::resource('Obat', ObatController::class);
     Route::post('/import_Obat', [ObatController::class, 'import']);
+    Route::get('/export_Obat', [ObatController::class, 'export']);
+
+
     Route::post('ObatNew', [ObatController::class, 'ObatNew'])->name('ObatNew');
+
     Route::resource('Vaksin', VaksinController::class);
     Route::post('/import_Vaksin', [VaksinController::class, 'import']);
+    Route::get('/export_Vaksin', [VaksinController::class, 'export']);
+
 
     Route::post('VaksinNew', [VaksinController::class, 'VaksinNew'])->name('VaksinNew');
+
     Route::resource('JaminanKesehatan', JaminanKesehatanController::class);
     Route::post('/import_JaminanKesehatan', [JaminanKesehatanController::class, 'import']);
+    Route::get('/export_JaminanKesehatan', [JaminanKesehatanController::class, 'export']);
 
     Route::resource('JumlahKematianIbu', JumlahKematianIbuController::class);
     Route::resource('PenyebabKematianIbu', PenyebabKematianIbuController::class);
