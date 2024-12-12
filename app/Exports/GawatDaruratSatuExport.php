@@ -150,9 +150,9 @@ public function registerEvents(): array
 
             // Merge the main title across the entire row
 
-            $sheet->mergeCells('A1:J1'); // Shifted from 'A1:W1' to 'A3:W3' (two extra rows)
-            $sheet->mergeCells('A2:J2'); // Shifted from 'A1:W1' to 'A3:W3' (two extra rows)
-            $sheet->mergeCells('A3:J3'); // Shifted from 'A1:W1' to 'A3:W3' (two extra rows)
+            $sheet->mergeCells('A1:E1'); // Shifted from 'A1:W1' to 'A3:W3' (two extra rows)
+            $sheet->mergeCells('A2:E2'); // Shifted from 'A1:W1' to 'A3:W3' (two extra rows)
+            $sheet->mergeCells('A3:E3'); // Shifted from 'A1:W1' to 'A3:W3' (two extra rows)
 
             // Merge main header sections
             $sheet->mergeCells('A4:A5');

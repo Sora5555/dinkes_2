@@ -72,7 +72,7 @@
                                 @if(Auth::user()->hasFile('FasilitasKesehatan', Session::get('year')) && Auth::user()->downloadFile('FasilitasKesehatan', Session::get('year'))->file_name != "-")
                                     <a type="button" class="btn btn-warning" href="{{ Auth::user()->downloadFile('FasilitasKesehatan', Session::get('year'))->file_path.Auth::user()->downloadFile('FasilitasKesehatan', Session::get('year'))->file_name }}" download="" ><i class="mdi mdi-note"></i>Download pdf file</a>
                                 @endif
-                                {{-- <a type="button" class="btn btn-warning" href="{{ route('ImdAsi.excel') }}" ><i class="mdi mdi-note"></i>Report</a> --}}
+                                <a type="button" class="btn btn-warning" href="{{url("/export_FasilitasKesehatan")}}" ><i class="mdi mdi-note"></i>Report</a>
                             </div>
                         </div>
                         <br>

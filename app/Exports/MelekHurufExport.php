@@ -126,7 +126,7 @@ class MelekHurufExport implements FromCollection, WithHeadings, WithEvents, With
         $no = 0;
 
 
-        $mappedData = $MelekHuruf->map(function($item, $no) {
+        $mappedData[] = $MelekHuruf->map(function($item, $no) {
             $KelompokUmur = KelompokUmur::where('batas_bawah', '>=', 15)->get();
             $laki_laki = $KelompokUmur->sum('laki_laki');
             $perempuan = $KelompokUmur->sum('perempuan');
